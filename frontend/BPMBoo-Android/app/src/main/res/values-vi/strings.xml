@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BPMBoo</string>
+
+    <string name="measure_heart_rate">Đo nhịp tim</string>
+    <string name="measure_instruction">Đặt ngón tay lên camera</string>
+    <string name="ready_to_measure">Sẵn sàng đo</string>
+    <string name="start_measurement">Bắt đầu đo</string>
+
+    <string name="how_to_measure">Cách đo nhịp tim?</string>
+
+    <string name="measure_steps">1. Che camera sau bằng ngón tay của bạn.\n2. Giữ yên ngón tay cho đến khi đo xong.\n3. Bật flash để kết quả chính xác hơn.</string>
+
+    <string name="history">Lịch sử</string>
+    <string name="track_heart_rhythm">Theo dõi nhịp tim của bạn.</string>
+    <string name="weekly_overview">Tổng quan tuần</string>
+    <string name="recent_readings">Kết quả gần đây</string>
+    <string name="no_data">Chưa có dữ liệu.</string>
+
+    <string name="heart_analytics">Phân tích nhịp tim</string>
+    <string name="analytics_subtitle">Hoạt động nhịp tim trong 7 ngày gần đây.</string>
+
+    <string name="average">Trung bình</string>
+    <string name="maximum">Cao nhất</string>
+    <string name="minimum">Thấp nhất</string>
+
+    <string name="weekly_trend">Xu hướng tuần</string>
+
+    <string name="smart_insight">Phân tích AI</string>
+
+    <string name="profile">Hồ sơ</string>
+    <string name="account_information">Thông tin tài khoản</string>
+
+    <string name="profile_description">Thông tin chính xác giúp chúng tôi hỗ trợ theo dõi sức khỏe và liên hệ khẩn cấp.</string>
+
+    <string name="full_name">Họ và tên</string>
+    <string name="enter_full_name">Nhập họ tên</string>
+
+    <string name="phone_number">Số điện thoại</string>
+    <string name="enter_phone_number">Nhập số điện thoại</string>
+
+    <string name="email">Email</string>
+    <string name="enter_email">Nhập email</string>
+
+    <string name="date_of_birth">Ngày sinh</string>
+    <string name="select_date_of_birth">Chọn ngày sinh</string>
+
+    <string name="gender">Giới tính</string>
+
+    <string name="male">Nam</string>
+    <string name="female">Nữ</string>
+    <string name="other">Khác</string>
+
+    <string name="change_language">Đổi ngôn ngữ</string>
+    <string name="log_out">Đăng xuất</string>
+    <string name="delete_account">Xóa tài khoản</string>
+
+    <string name="welcome_to_bpmboo">Chào mừng đến BPMBoo</string>
+
+    <string name="onboarding_description">Đo nhịp tim dễ dàng chỉ bằng camera điện thoại.\nKhông cần thiết bị ngoài.</string>
+
+    <string name="gentle_care">Theo dõi sức khỏe</string>
+    <string name="instant_sync">Đồng bộ nhanh</string>
+
+    <string name="get_started">Bắt đầu</string>
+
+    <string name="signup_later">Chưa có tài khoản? Đăng ký.</string>
+
+</resources>

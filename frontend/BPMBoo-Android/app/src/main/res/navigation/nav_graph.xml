@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/onboardingFragment">
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.bpmbooheartbeat.ui.onboarding.OnboardingFragment"
+        android:label="@string/nav_onboarding" />
+
+    <fragment
+        android:id="@+id/measureFragment"
+        android:name="com.example.bpmbooheartbeat.ui.measure.MeasureFragment"
+        android:label="@string/nav_measure" />
+
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.bpmbooheartbeat.ui.history.HistoryFragment"
+        android:label="@string/nav_history" />
+
+    <fragment
+        android:id="@+id/analyticsFragment"
+        android:name="com.example.bpmbooheartbeat.ui.analytics.AnalyticsFragment"
+        android:label="@string/nav_analytics" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.bpmbooheartbeat.ui.profile.ProfileFragment"
+        android:label="@string/nav_profile" />
+
+</navigation>

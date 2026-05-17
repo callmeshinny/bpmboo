@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Application Theme -->
+    <style name="Theme.BpmBooHeartbeat" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/secondary</item>
+        <item name="colorPrimaryVariant">@color/secondary_dark</item>
+        <item name="colorSecondary">@color/tertiary</item>
+        <item name="colorSecondaryVariant">@color/tertiary_dark</item>
+
+        <item name="android:colorBackground">@color/surface</item>
+        <item name="android:colorForeground">@color/text_primary</item>
+
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- TYPOGRAPHY STYLES -->
+    <!-- ============================================================ -->
+
+    <!-- Base Typography -->
+    <style name="TextAppearance.BpmBoo" parent="TextAppearance.MaterialComponents.Body1" />
+
+    <!-- Display Large -->
+    <style name="TextAppearance.BpmBoo.DisplayLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textSize">@dimen/text_display_large</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineHeight">64sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <!-- Headline Large (32sp) -->
+    <style name="TextAppearance.BpmBoo.HeadlineLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textSize">@dimen/text_headline_large</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">40sp</item>
+    </style>
+
+    <!-- Headline Medium (28sp) -->
+    <style name="TextAppearance.BpmBoo.HeadlineMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textSize">@dimen/text_headline_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">36sp</item>
+    </style>
+
+    <!-- Headline Small (24sp) -->
+    <style name="TextAppearance.BpmBoo.HeadlineSmall">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textSize">@dimen/text_headline_small</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">32sp</item>
+    </style>
+
+    <!-- Title Large (22sp) -->
+    <style name="TextAppearance.BpmBoo.TitleLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_bold</item>
+        <item name="android:textSize">@dimen/text_title_large</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">28sp</item>
+    </style>
+
+    <!-- Title Medium (16sp) -->
+    <style name="TextAppearance.BpmBoo.TitleMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="android:textSize">@dimen/text_title_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+
+    <!-- Title Small (14sp) -->
+    <style name="TextAppearance.BpmBoo.TitleSmall">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="android:textSize">@dimen/text_title_small</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <!-- Body Large (16sp) -->
+    <style name="TextAppearance.BpmBoo.BodyLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_regular</item>
+        <item name="android:textSize">@dimen/text_body_large</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineHeight">24sp</item>
+    </style>
+
+    <!-- Body Medium (14sp) -->
+    <style name="TextAppearance.BpmBoo.BodyMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_regular</item>
+        <item name="android:textSize">@dimen/text_body_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <!-- Body Small (12sp) -->
+    <style name="TextAppearance.BpmBoo.BodySmall">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_regular</item>
+        <item name="android:textSize">@dimen/text_body_small</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineHeight">16sp</item>
+    </style>
+
+    <!-- Label Large (14sp) -->
+    <style name="TextAppearance.BpmBoo.LabelLarge">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="android:textSize">@dimen/text_label_large</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">20sp</item>
+    </style>
+
+    <!-- Label Medium (12sp) -->
+    <style name="TextAppearance.BpmBoo.LabelMedium">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="android:textSize">@dimen/text_label_medium</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">16sp</item>
+    </style>
+
+    <!-- Label Small (11sp) -->
+    <style name="TextAppearance.BpmBoo.LabelSmall">
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="android:textSize">@dimen/text_label_small</item>
+        <item name="android:textColor" >@color/text_secondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineHeight">16sp</item>
+    </style>
+
+    <!-- ============================================================ -->
+    <!-- COMPONENT STYLES -->
+    <!-- ============================================================ -->
+
+    <!-- Base Widget Style -->
+    <style name="Widget.BpmBoo" parent="android:Widget" />
+
+    <!-- Button Style - Primary (Secondary Color) -->
+    <style name="Widget.BpmBoo.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/text_inverse</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="backgroundTint">@color/secondary</item>
+        <item name="android:textSize">@dimen/text_label_large</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/corner_radius_large</item>
+        <item name="elevation">@dimen/elevation_2</item>
+    </style>
+
+    <!-- Button Style - Secondary (Tertiary Color) -->
+    <style name="Widget.BpmBoo.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/secondary</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/plus_jakarta_sans_semibold</item>
+        <item name="strokeColor">@color/secondary</item>
+        <item name="strokeWidth">2dp</item>
+        <item name="android:textSize">@dimen/text_label_large</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="cornerRadius">@dimen/corner_radius_large</item>
+    </style>
+
+    <!-- Card Style -->
+    <style name="Widget.BpmBoo.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/corner_radius_large</item>
+        <item name="cardElevation">@dimen/elevation_2</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+    </style>
+
+    <!-- Divider -->
+    <style name="Widget.BpmBoo.Divider">
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/gray_200</item>
+    </style>
+
+    <!-- Shape Appearances -->
+    <style name="ShapeAppearance.BpmBoo" parent="ShapeAppearance.MaterialComponents.MediumComponent" />
+
+    <style name="ShapeAppearance.BpmBoo.RoundedImage">
+        <item name="cornerSize">28dp</item>
+    </style>
+
+</resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Primary / Brand -->
+    <color name="primary">#FFFFFF</color>
+    <color name="primary_dark">#F5F5F5</color>
+
+    <!-- Main Blue -->
+    <color name="secondary">#1976D2</color>
+    <color name="secondary_dark">#1565C0</color>
+    <color name="secondary_light">#EAF2FF</color>
+
+    <!-- Heart / Alert Red -->
+    <color name="tertiary">#E53935</color>
+    <color name="tertiary_dark">#D32F2F</color>
+    <color name="tertiary_light">#FDECEC</color>
+
+    <!-- Header -->
+    <color name="header_background">#FFFFFF</color>
+
+    <!-- Neutral -->
+    <color name="neutral">#212121</color>
+    <color name="neutral_dark">#212121</color>
+    <color name="neutral_light">#212121</color>
+
+    <!-- Grayscale -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="gray_50">#FAFAFA</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+
+    <!-- Gray to Black -->
+    <color name="gray_500">#212121</color>
+    <color name="gray_600">#212121</color>
+    <color name="gray_700">#212121</color>
+    <color name="gray_800">#212121</color>
+    <color name="gray_900">#212121</color>
+
+    <!-- Semantic -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FF9800</color>
+    <color name="error">#E53935</color>
+    <color name="info">#1976D2</color>
+
+    <!-- Surface -->
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F6F4F3</color>
+
+    <!-- Overlay -->
+    <color name="overlay_dark">#12000000</color>
+    <color name="overlay_light">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#212121</color>
+
+    <!-- Text Secondary / Tertiary -->
+    <color name="text_secondary">#212121</color>
+    <color name="text_tertiary">#212121</color>
+
+    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_inverse">#FFFFFF</color>
+
+    <!-- Profile Specific -->
+    <color name="profile_text_secondary">#757575</color>
+
+</resources>
