@@ -9,33 +9,56 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
+
+    passwordHash: {
+      type: String,
+      required: true
+    },
+
     fullName: {
       type: String,
       default: ""
     },
-    phone: {
+
+    phoneEncrypted: {
       type: String,
       default: ""
     },
-    dob: {
+
+    dobEncrypted: {
       type: String,
       default: ""
     },
-    gender: {
+
+    genderEncrypted: {
       type: String,
       default: ""
     },
-    emergencyName: {
+
+    emergencyNameEncrypted: {
       type: String,
       default: ""
     },
-    emergencyPhone: {
+
+    emergencyPhoneEncrypted: {
       type: String,
       default: ""
     },
+
     avatarUrl: {
       type: String,
       default: ""
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user"
+    },
+
+    isEmailVerified: {
+      type: Boolean,
+      default: false
     }
   },
   {
