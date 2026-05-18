@@ -37,6 +37,8 @@ app.use("/api/insight", insightRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/heart-rates", heartRateRoutes);
 
+console.log("All routes mounted successfully");
+
 app.use((req, res) => {
   res.status(404).json({
     success: false,
