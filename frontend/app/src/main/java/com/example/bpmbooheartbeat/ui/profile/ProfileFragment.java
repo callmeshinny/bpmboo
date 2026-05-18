@@ -20,11 +20,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.bpmbooheartbeat.R;
+import com.example.bpmbooheartbeat.data.api.ApiRequest;
+import com.example.bpmbooheartbeat.data.api.ApiResponse;
+import com.example.bpmbooheartbeat.data.api.RetrofitClient;
 import com.example.bpmbooheartbeat.utils.AuthPreferences;
 import com.example.bpmbooheartbeat.utils.LocaleHelper;
 import com.example.bpmbooheartbeat.utils.ProfileImageUtils;
 
 import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
 
@@ -34,7 +41,6 @@ public class ProfileFragment extends Fragment {
     private TextView tvLanguage;
     private TextView tvLogout;
     private TextView tvDeleteAccount;
-    private TextView tvBackProfile;
 
     private EditText edtFullName;
     private EditText edtPhoneNumber;
@@ -85,7 +91,6 @@ public class ProfileFragment extends Fragment {
         tvLanguage = root.findViewById(R.id.tvLanguage);
         tvLogout = root.findViewById(R.id.tvLogout);
         tvDeleteAccount = root.findViewById(R.id.tvDeleteAccount);
-        tvBackProfile = root.findViewById(R.id.tvBackProfile);
 
         edtFullName = root.findViewById(R.id.edtFullName);
         edtPhoneNumber = root.findViewById(R.id.edtPhoneNumber);
@@ -103,23 +108,77 @@ public class ProfileFragment extends Fragment {
                 uri -> {
 
                     if (uri != null) {
-
-                        ProfileImageUtils.saveAvatarUri(
+                        // Convert image to base64
+                        String base64Image = ProfileImageUtils.convertImageToBase64(
                                 requireContext(),
                                 uri
                         );
 
-                        imgAvatarProfile.setImageURI(uri);
-
-                        Toast.makeText(
-                                requireContext(),
-                                "Profile image updated",
-                                Toast.LENGTH_SHORT
-                        ).show();
+                        if (base64Image != null) {
+                            uploadAvatarToServer(base64Image);
+                        } else {
+                            Toast.makeText(
+                                    requireContext(),
+                                    "Failed to process image",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
                     }
                 }
         );
     }
+
+    private void uploadAvatarToServer(String avatarBase64) {
+        String userId = authPrefs.getUserId();
+        String token = "Bearer " + authPrefs.getAccessToken();
+
+        ApiRequest.AvatarRequest request = new ApiRequest.AvatarRequest(avatarBase64);
+
+        RetrofitClient.getApiService().uploadAvatar(token, userId, request)
+                .enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            ApiResponse apiResponse = response.body();
+                            if (apiResponse.success) {
+                                // Save avatar URL locally
+                                ProfileImageUtils.saveAvatarUrl(requireContext(), avatarBase64);
+
+                                // Display avatar
+                                ProfileImageUtils.loadAvatar(requireContext(), imgAvatarProfile, avatarBase64);
+
+                                Toast.makeText(
+                                        requireContext(),
+                                        "Avatar updated successfully",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            } else {
+                                Toast.makeText(
+                                        requireContext(),
+                                        "Failed to upload avatar",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                        } else {
+                            Toast.makeText(
+                                    requireContext(),
+                                    "Upload failed",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse> call, Throwable t) {
+                        Toast.makeText(
+                                requireContext(),
+                                "Network error: " + t.getMessage(),
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+    }
+
 
     private void setupListeners() {
 
@@ -149,10 +208,6 @@ public class ProfileFragment extends Fragment {
 
         tvDeleteAccount.setOnClickListener(
                 v -> showDeleteConfirmDialog()
-        );
-
-        tvBackProfile.setOnClickListener(
-                v -> Navigation.findNavController(v).navigateUp()
         );
     }
 

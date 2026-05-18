@@ -148,4 +148,12 @@ public class ApiRequest {
             this.purpose = purpose;
         }
     }
+
+    public static class AvatarRequest {
+        public String avatarBase64;
+
+        public AvatarRequest(String avatarBase64) {
+            this.avatarBase64 = avatarBase64;
+        }
+    }
 }

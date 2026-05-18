@@ -86,4 +86,17 @@ public interface ApiService {
             @Header("Authorization") String token,
             @Path("userId") String userId
     );
+
+    // Avatar / Profile Image
+    @POST("api/avatar/{userId}")
+    Call<ApiResponse> uploadAvatar(
+            @Header("Authorization") String token,
+            @Path("userId") String userId,
+            @Body ApiRequest.AvatarRequest request
+    );
+
+    @GET("api/avatar/{userId}")
+    Call<ApiResponse> getAvatar(
+            @Path("userId") String userId
+    );
 }

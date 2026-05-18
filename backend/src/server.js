@@ -2,19 +2,33 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const swaggerUi = require("swagger-ui-express");
 
 const connectDB = require("./config/db");
+const swaggerSpec = require("./config/swagger");
 
 const otpRoutes = require("./routes/otpRoutes");
 const authRoutes = require("./routes/authRoutes");
 const insightRoutes = require("./routes/insightRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const heartRateRoutes = require("./routes/heartRateRoutes");
+const avatarRoutes = require("./routes/avatarRoutes");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Swagger API Documentation
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    url: "/api/swagger.json"
+  }
+}));
+app.get("/api/swagger.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -36,6 +50,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/insight", insightRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/heart-rates", heartRateRoutes);
+app.use("/api/avatar", avatarRoutes);
 
 console.log("All routes mounted successfully");
 
