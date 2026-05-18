@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import LoginScreen from '../screens/LoginScreen';
+import OtpScreen from '../screens/OtpScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import MeasureScreen from '../screens/MeasureScreen';
 import HistoryScreen from '../screens/HistoryScreen';
@@ -60,9 +61,14 @@ export function RootNavigator({ isLoggedIn, onAuthChange }) {
             </Stack.Screen>
           </>
         ) : (
-          <Stack.Screen name="Login">
-            {(props) => <LoginScreen {...props} onAuthChange={onAuthChange} />}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="Login">
+              {(props) => <LoginScreen {...props} onAuthChange={onAuthChange} />}
+            </Stack.Screen>
+            <Stack.Screen name="Otp">
+              {(props) => <OtpScreen {...props} onAuthChange={onAuthChange} />}
+            </Stack.Screen>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

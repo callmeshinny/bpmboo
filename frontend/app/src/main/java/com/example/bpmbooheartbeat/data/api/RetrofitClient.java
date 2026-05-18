@@ -10,8 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
     private static Retrofit retrofit = null;
 
-    private static final String BASE_URL = "https://your-render-service.onrender.com/";
-
+    private static final String BASE_URL = "https://bpmboo-backend.onrender.com/";
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();

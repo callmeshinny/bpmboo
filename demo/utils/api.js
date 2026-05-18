@@ -54,4 +54,9 @@ export const insightAPI = {
   get: () => apiClient.get('/api/insight'),
 };
 
+export const otpAPI = {
+  request: (data) => apiClient.post('/api/otp/request', data),
+  verify: (data) => apiClient.post('/api/otp/verify', data),
+};
+
 export default apiClient;

@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { authAPI } from '../utils/api';
+import { authAPI, otpAPI } from '../utils/api';
 
 export default function LoginScreen({ navigation, onAuthChange }) {
   const [email, setEmail] = useState('demo@gmail.com');
@@ -73,6 +73,24 @@ export default function LoginScreen({ navigation, onAuthChange }) {
       navigation.replace('MainTabs');
     } catch (error) {
       Alert.alert('Registration Failed', error.response?.data?.message || 'Registration error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestOtp = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await otpAPI.request({ email });
+      Alert.alert('Success', 'OTP sent to your email');
+      navigation.navigate('Otp', { email });
+    } catch (error) {
+      Alert.alert('Error', error.response?.data?.message || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
@@ -183,6 +201,14 @@ export default function LoginScreen({ navigation, onAuthChange }) {
           <Text style={styles.buttonText}>{loading ? 'Signing in...' : 'Sign In'}</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={[styles.buttonOtp, loading && styles.buttonDisabled]}
+          onPress={handleRequestOtp}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>Sign In with OTP</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={() => setShowRegister(true)}>
           <Text style={styles.linkText}>Don't have an account? Register</Text>
         </TouchableOpacity>
@@ -226,6 +252,13 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#e74c3c',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonOtp: {
+    backgroundColor: '#27ae60',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',

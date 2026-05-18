@@ -52,7 +52,10 @@ public class HeartRateRepository {
             return;
         }
 
+        String userId = authPrefs.getUserId();
+
         ApiRequest.HeartRateRecordRequest request = new ApiRequest.HeartRateRecordRequest(
+                userId,
                 record.bpmValue,
                 record.feelingTag != null ? record.feelingTag : "Resting",
                 record.notes != null ? record.notes : ""
