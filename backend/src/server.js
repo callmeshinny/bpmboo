@@ -13,12 +13,6 @@ const heartRateRoutes = require("./routes/heartRateRoutes");
 
 const app = express();
 
-if (process.env.MONGODB_URI && process.env.MONGODB_URI.startsWith("mongodb")) {
-  connectDB();
-} else {
-  console.log("MongoDB URI is missing or invalid. Running without database for now.");
-}
-
 app.use(cors());
 app.use(express.json());
 
@@ -52,6 +46,17 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5001;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`BPMBoo backend is running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`BPMBoo backend is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();

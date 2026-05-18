@@ -13,9 +13,9 @@ public class ApiRequest {
         public String emergencyPhone;
         public String avatarUrl;
 
-        public RegisterRequest(String email, String password, String fullName, String phone, 
-                             String dob, String gender, String emergencyName, 
-                             String emergencyPhone, String avatarUrl) {
+        public RegisterRequest(String email, String password, String fullName, String phone,
+                               String dob, String gender, String emergencyName,
+                               String emergencyPhone, String avatarUrl) {
             this.email = email;
             this.password = password;
             this.fullName = fullName;
@@ -45,18 +45,10 @@ public class ApiRequest {
         public String feelingTag;
         public String note;
 
-        public static class HeartRateRecordRequest {
-            public String userId;
-            public int bpmValue;
-            public String feelingTag;
-            public String note;
-
-            public HeartRateRecordRequest(String userId, int bpmValue, String feelingTag, String note) {
-                this.userId = userId;
-                this.bpmValue = bpmValue;
-                this.feelingTag = feelingTag;
-                this.note = note;
-            }
+        public HeartRateRecordRequest(int bpmValue, String feelingTag, String note) {
+            this.bpmValue = bpmValue;
+            this.feelingTag = feelingTag;
+            this.note = note;
         }
     }
 }

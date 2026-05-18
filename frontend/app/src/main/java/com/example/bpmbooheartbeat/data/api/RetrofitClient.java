@@ -10,7 +10,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
     private static Retrofit retrofit = null;
 
-    private static final String BASE_URL = "http://127.0.0.1:5001/";
     private static final String BASE_URL = "https://your-render-service.onrender.com/";
 
     public static Retrofit getRetrofitInstance() {
