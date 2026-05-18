@@ -4,16 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.bpmbooheartbeat"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.bpmbooheartbeat"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -48,7 +44,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     // CameraX core library using the camera2 implementation
-    var camerax_version = "1.6.0"
+    val camerax_version = "1.4.1"
     implementation("androidx.camera:camera-core:${camerax_version}")
     implementation("androidx.camera:camera-camera2:${camerax_version}")
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
@@ -60,12 +56,17 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
 
     // ViewModel + LiveData lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-livedata:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.8.7")
 
     // Fragment + BottomNavigation
-    implementation("androidx.fragment:fragment:1.6.2")
-    implementation("com.google.android.material:material:1.10.0") // already present
+    implementation("androidx.fragment:fragment:1.8.5")
+
+    // Retrofit + OkHttp for API calls
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
     // Optional: Guava for ListenableFuture (CameraX already pulls it)
     // No additional dep needed

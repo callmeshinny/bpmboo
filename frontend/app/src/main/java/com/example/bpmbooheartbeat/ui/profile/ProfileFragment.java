@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.bpmbooheartbeat.R;
+import com.example.bpmbooheartbeat.utils.AuthPreferences;
 import com.example.bpmbooheartbeat.utils.LocaleHelper;
 import com.example.bpmbooheartbeat.utils.ProfileImageUtils;
 
@@ -44,6 +45,7 @@ public class ProfileFragment extends Fragment {
     private RadioGroup radioGenderGroup;
 
     private ActivityResultLauncher<String> pickImageLauncher;
+    private AuthPreferences authPrefs;
 
     @Nullable
     @Override
@@ -58,6 +60,8 @@ public class ProfileFragment extends Fragment {
                 container,
                 false
         );
+
+        authPrefs = new AuthPreferences(requireContext());
 
         bindViews(root);
 
@@ -132,7 +136,7 @@ public class ProfileFragment extends Fragment {
         );
 
         tvLogout.setOnClickListener(v -> {
-
+            authPrefs.clearAuthData();
             Toast.makeText(
                     requireContext(),
                     "Logged out",
@@ -247,6 +251,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void clearProfileData() {
+        authPrefs.clearAuthData();
 
         edtFullName.setText("");
         edtPhoneNumber.setText("");
