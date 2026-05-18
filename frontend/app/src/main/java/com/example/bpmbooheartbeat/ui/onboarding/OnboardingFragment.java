@@ -20,6 +20,7 @@ import com.example.bpmbooheartbeat.data.api.ApiResponse;
 import com.example.bpmbooheartbeat.data.api.RetrofitClient;
 import com.example.bpmbooheartbeat.utils.AuthPreferences;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,6 +31,7 @@ public class OnboardingFragment extends Fragment {
     private boolean isLoginMode = true;
 
     // Common views
+    private View authFormSection;
     private EditText edtEmail;
     private EditText edtPassword;
     private EditText edtPasswordConfirm;
@@ -44,6 +46,12 @@ public class OnboardingFragment extends Fragment {
     private EditText edtEmergencyName;
     private EditText edtEmergencyPhone;
 
+    private TextInputLayout layoutEmail;
+    private TextInputLayout layoutPassword;
+    private TextInputLayout layoutPasswordConfirm;
+    private TextInputLayout layoutFullName;
+    private TextInputLayout layoutPhone;
+
     @Nullable
     @Override
     public View onCreateView(
@@ -51,175 +59,259 @@ public class OnboardingFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        View root = inflater.inflate(R.layout.fragment_onboarding, container, false);
-        authPrefs = new AuthPreferences(requireContext());
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View root = inflater.inflate(R.layout.fragment_onboarding, container, false);
+            authPrefs = new AuthPreferences(requireContext());
 
-        // Check if user is already logged in
-        if (authPrefs.isLoggedIn()) {
-            Navigation.findNavController(root).navigate(R.id.measureFragment);
+            // Check if user is already logged in
+            if (authPrefs.isLoggedIn()) {
+                Navigation.findNavController(root).navigate(R.id.measureFragment);
+                return root;
+            }
+
+            bindViews(root);
+            setupListeners();
+            showLoginMode();
+
+            if (authPrefs.isLoggedIn()) {
+                showLoggedInMode();
+            } else {
+                showLoginMode();
+            }
+
             return root;
         }
 
-        bindViews(root);
-        setupListeners();
-        showLoginMode();
+        private void bindViews(View root) {
+            authFormSection = root.findViewById(R.id.authFormSection);
+            edtEmail = root.findViewById(R.id.edtEmail);
+            edtPassword = root.findViewById(R.id.edtPassword);
+            edtPasswordConfirm = root.findViewById(R.id.edtPasswordConfirm);
+            edtFullName = root.findViewById(R.id.edtFullName);
+            btnSubmit = root.findViewById(R.id.btnSubmit);
+            tvToggleMode = root.findViewById(R.id.tvToggleMode);
+            progressBar = root.findViewById(R.id.progressBar);
 
-        return root;
-    }
+            layoutEmail = root.findViewById(R.id.layoutEmail);
+            layoutPassword = root.findViewById(R.id.layoutPassword);
+            layoutPasswordConfirm = root.findViewById(R.id.layoutPasswordConfirm);
+            layoutFullName = root.findViewById(R.id.layoutFullName);
+            layoutPhone = root.findViewById(R.id.layoutPhone);
 
-    private void bindViews(View root) {
-        edtEmail = root.findViewById(R.id.edtEmail);
-        edtPassword = root.findViewById(R.id.edtPassword);
-        edtPasswordConfirm = root.findViewById(R.id.edtPasswordConfirm);
-        edtFullName = root.findViewById(R.id.edtFullName);
-        btnSubmit = root.findViewById(R.id.btnSubmit);
-        tvToggleMode = root.findViewById(R.id.tvToggleMode);
-        progressBar = root.findViewById(R.id.progressBar);
+            registerOnlySection = root.findViewById(R.id.registerOnlySection);
+            edtPhone = root.findViewById(R.id.edtPhone);
+            edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
+            edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
+        }
 
-        registerOnlySection = root.findViewById(R.id.registerOnlySection);
-        edtPhone = root.findViewById(R.id.edtPhone);
-        edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
-        edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
-    }
+        private void setupListeners() {
+            btnSubmit.setOnClickListener(v -> {
+                if (authPrefs.isLoggedIn() && !isLoginMode) {
+                    Navigation.findNavController(v).navigate(R.id.measureFragment);
+                    return;
+                }
 
-    private void setupListeners() {
-        btnSubmit.setOnClickListener(v -> {
+                if (isLoginMode) {
+                    handleLogin();
+                } else {
+                    handleRegister();
+                }
+            });
+
+            tvToggleMode.setOnClickListener(v -> toggleAuthMode());
+        }
+
+        private void showLoggedInMode() {
+            isLoginMode = false;
+            authFormSection.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            btnSubmit.setEnabled(true);
+            btnSubmit.setText(getString(R.string.get_started));
+            tvToggleMode.setVisibility(View.GONE);
+        }
+
+        private void showLoginMode() {
+            isLoginMode = true;
+            authFormSection.setVisibility(View.VISIBLE);
+            tvToggleMode.setVisibility(View.VISIBLE);
+            registerOnlySection.setVisibility(View.GONE);
+            edtPasswordConfirm.setVisibility(View.GONE);
+            edtFullName.setVisibility(View.GONE);
+            btnSubmit.setText("Login");
+            tvToggleMode.setText("Don't have an account? Sign Up");
+        }
+
+        private void showRegisterMode() {
+            isLoginMode = false;
+            authFormSection.setVisibility(View.VISIBLE);
+            tvToggleMode.setVisibility(View.VISIBLE);
+            registerOnlySection.setVisibility(View.VISIBLE);
+            edtPasswordConfirm.setVisibility(View.VISIBLE);
+            edtFullName.setVisibility(View.VISIBLE);
+            btnSubmit.setText("Sign Up");
+            tvToggleMode.setText("Already have an account? Login");
+        }
+
+        private void toggleAuthMode() {
             if (isLoginMode) {
-                handleLogin();
+                showRegisterMode();
             } else {
-                handleRegister();
+                showLoginMode();
             }
-        });
-
-        tvToggleMode.setOnClickListener(v -> toggleAuthMode());
-    }
-
-    private void showLoginMode() {
-        isLoginMode = true;
-        registerOnlySection.setVisibility(View.GONE);
-        edtPasswordConfirm.setVisibility(View.GONE);
-        edtFullName.setVisibility(View.GONE);
-        btnSubmit.setText("Login");
-        tvToggleMode.setText("Don't have an account? Sign Up");
-    }
-
-    private void showRegisterMode() {
-        isLoginMode = false;
-        registerOnlySection.setVisibility(View.VISIBLE);
-        edtPasswordConfirm.setVisibility(View.VISIBLE);
-        edtFullName.setVisibility(View.VISIBLE);
-        btnSubmit.setText("Sign Up");
-        tvToggleMode.setText("Already have an account? Login");
-    }
-
-    private void toggleAuthMode() {
-        if (isLoginMode) {
-            showRegisterMode();
-        } else {
-            showLoginMode();
-        }
-    }
-
-    private void handleLogin() {
-        String email = edtEmail.getText().toString().trim();
-        String password = edtPassword.getText().toString().trim();
-
-        if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
+            if (isLoginMode) showRegisterMode();
+            else showLoginMode();
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-        btnSubmit.setEnabled(false);
+        private void handleLogin() {
+            String email = edtEmail.getText().toString().trim();
+            String password = edtPassword.getText().toString().trim();
 
-        ApiRequest.LoginRequest request = new ApiRequest.LoginRequest(email, password);
-        RetrofitClient.getApiService().login(request).enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                progressBar.setVisibility(View.GONE);
-                btnSubmit.setEnabled(true);
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse body = response.body();
-                    if (body.success && body.user != null) {
-                        // Save auth data
-                        authPrefs.saveAuthData(body.token, body.user._id, body.user.email);
-                        Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
+            progressBar.setVisibility(View.VISIBLE);
+            btnSubmit.setEnabled(false);
+
+            ApiRequest.LoginRequest request = new ApiRequest.LoginRequest(email, password);
+            RetrofitClient.getApiService().login(request).enqueue(new Callback<ApiResponse>() {
+                @Override
+                public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                    progressBar.setVisibility(View.GONE);
+                    btnSubmit.setEnabled(true);
+
+                    if (response.isSuccessful() && response.body() != null) {
+                        ApiResponse body = response.body();
+                        if (body.success && body.user != null) {
+                            // Save auth data
+                            authPrefs.saveAuthData(body.token, body.user._id, body.user.email);
+                            Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+                            Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
+                        } else {
+                            Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Login failed: " + response.message(), Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(requireContext(), "Login failed: " + response.message(), Toast.LENGTH_SHORT).show();
                 }
+
+                @Override
+                public void onFailure(Call<ApiResponse> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    btnSubmit.setEnabled(true);
+                    Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        private void clearValidationErrors() {
+            layoutEmail.setError(null);
+            layoutPassword.setError(null);
+            layoutPasswordConfirm.setError(null);
+            layoutFullName.setError(null);
+            layoutPhone.setError(null);
+        }
+
+        private boolean validateRegisterForm(String email, String password, String passwordConfirm, String fullName, String phone) {
+            clearValidationErrors();
+            boolean isValid = true;
+
+            if (email.isEmpty()) {
+                layoutEmail.setError("Required");
+                isValid = false;
+            }
+            if (password.isEmpty()) {
+                layoutPassword.setError("Required");
+                isValid = false;
+            }
+            if (passwordConfirm.isEmpty()) {
+                layoutPasswordConfirm.setError("Required");
+                isValid = false;
+            }
+            if (fullName.isEmpty()) {
+                layoutFullName.setError("Required");
+                isValid = false;
+            }
+            if (phone.isEmpty()) {
+                layoutPhone.setError("Required");
+                isValid = false;
             }
 
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                btnSubmit.setEnabled(true);
-                Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            if (!isValid) return false;
+
+            if (!password.equals(passwordConfirm)) {
+                layoutPasswordConfirm.setError("Passwords do not match");
+                return false;
             }
-        });
-    }
 
-    private void handleRegister() {
-        String email = edtEmail.getText().toString().trim();
-        String password = edtPassword.getText().toString().trim();
-        String passwordConfirm = edtPasswordConfirm.getText().toString().trim();
-        String fullName = edtFullName.getText().toString().trim();
-        String phone = edtPhone.getText().toString().trim();
-        String emergencyName = edtEmergencyName.getText().toString().trim();
-        String emergencyPhone = edtEmergencyPhone.getText().toString().trim();
+            if (password.length() < 6) {
+                layoutPassword.setError("Password must be at least 6 characters");
+                return false;
+            }
 
-        if (email.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty() || fullName.isEmpty()) {
-            Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
-            return;
+            return true;
         }
 
-        if (!password.equals(passwordConfirm)) {
-            Toast.makeText(requireContext(), "Passwords don't match", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        private void handleRegister() {
+            String email = edtEmail.getText().toString().trim();
+            String password = edtPassword.getText().toString().trim();
+            String passwordConfirm = edtPasswordConfirm.getText().toString().trim();
+            String fullName = edtFullName.getText().toString().trim();
+            String phone = edtPhone.getText().toString().trim();
+            String emergencyName = edtEmergencyName.getText().toString().trim();
+            String emergencyPhone = edtEmergencyPhone.getText().toString().trim();
 
-        if (password.length() < 6) {
-            Toast.makeText(requireContext(), "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
+            if (email.isEmpty() || password.isEmpty() || passwordConfirm.isEmpty() || fullName.isEmpty()) {
+                if (!validateRegisterForm(email, password, passwordConfirm, fullName, phone)) {
+                    Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        progressBar.setVisibility(View.VISIBLE);
-        btnSubmit.setEnabled(false);
+                if (!password.equals(passwordConfirm)) {
+                    Toast.makeText(requireContext(), "Passwords don't match", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        ApiRequest.RegisterRequest request = new ApiRequest.RegisterRequest(
-                email, password, fullName, phone, "", "", emergencyName, emergencyPhone, ""
-        );
+                if (password.length() < 6) {
+                    Toast.makeText(requireContext(), "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-        RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                progressBar.setVisibility(View.GONE);
-                btnSubmit.setEnabled(true);
+                progressBar.setVisibility(View.VISIBLE);
+                btnSubmit.setEnabled(false);
 
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse body = response.body();
-                    if (body.success && body.user != null) {
-                        authPrefs.saveAuthData(body.token, body.user._id, body.user.email);
-                        Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
-                    } else {
-                        Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
+                ApiRequest.RegisterRequest request = new ApiRequest.RegisterRequest(
+                        email, password, fullName, phone, "", "", emergencyName, emergencyPhone, ""
+                );
+
+                RetrofitClient.getApiService().register(request).enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                        progressBar.setVisibility(View.GONE);
+                        btnSubmit.setEnabled(true);
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            ApiResponse body = response.body();
+                            if (body.success && body.user != null) {
+                                authPrefs.saveAuthData(body.token, body.user._id, body.user.email);
+                                Toast.makeText(requireContext(), "Registration successful!", Toast.LENGTH_SHORT).show();
+                                Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
+                            } else {
+                                Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), "Registration failed: " + response.message(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    Toast.makeText(requireContext(), "Registration failed: " + response.message(), Toast.LENGTH_SHORT).show();
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
-                btnSubmit.setEnabled(true);
-                Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    @Override
+                    public void onFailure(Call<ApiResponse> call, Throwable t) {
+                        progressBar.setVisibility(View.GONE);
+                        btnSubmit.setEnabled(true);
+                        Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-        });
+        }
     }
-}

@@ -29,7 +29,7 @@ export default function App() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <RootNavigator isLoggedIn={isLoggedIn} />
+      <RootNavigator isLoggedIn={isLoggedIn} onAuthChange={setIsLoggedIn} />
     </>
   );
 }

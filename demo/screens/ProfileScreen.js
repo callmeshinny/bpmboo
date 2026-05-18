@@ -12,7 +12,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { profileAPI } from '../utils/api';
 
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen({ navigation, onAuthChange }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -65,6 +65,7 @@ export default function ProfileScreen({ navigation }) {
           await AsyncStorage.removeItem('token');
           await AsyncStorage.removeItem('userId');
           await AsyncStorage.removeItem('userData');
+          if (onAuthChange) onAuthChange(false);
           navigation.replace('Login');
         },
       },

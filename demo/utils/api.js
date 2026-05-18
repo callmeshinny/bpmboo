@@ -2,10 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Change this to your actual backend URL
-// For iPhone: Use your machine's IP address (e.g., http://192.168.x.x:5001)
-// For Android emulator: 'http://10.0.2.2:5001'
-// For production: 'https://your-api-domain.com'
-const BASE_URL = 'http://192.168.100.155:5001'; // Replace 192.168.100.155 with your actual IP if needed
+const BASE_URL = 'http://192.168.100.155:5001'; // Replace with your actual IP if needed
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
@@ -30,7 +27,6 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token expired, clear storage
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('userId');
     }

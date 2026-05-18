@@ -13,7 +13,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI } from '../utils/api';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, onAuthChange }) {
   const [email, setEmail] = useState('demo@gmail.com');
   const [password, setPassword] = useState('123456');
   const [loading, setLoading] = useState(false);
@@ -44,6 +44,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem('userId', user._id);
       await AsyncStorage.setItem('userData', JSON.stringify(user));
 
+      if (onAuthChange) onAuthChange(true);
       navigation.replace('MainTabs');
     } catch (error) {
       Alert.alert('Login Failed', error.response?.data?.message || 'Invalid credentials');
@@ -67,6 +68,7 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem('userId', user._id);
       await AsyncStorage.setItem('userData', JSON.stringify(user));
 
+      if (onAuthChange) onAuthChange(true);
       setShowRegister(false);
       navigation.replace('MainTabs');
     } catch (error) {

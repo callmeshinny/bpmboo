@@ -45,10 +45,18 @@ public class ApiRequest {
         public String feelingTag;
         public String note;
 
-        public HeartRateRecordRequest(int bpmValue, String feelingTag, String note) {
-            this.bpmValue = bpmValue;
-            this.feelingTag = feelingTag;
-            this.note = note;
+        public static class HeartRateRecordRequest {
+            public String userId;
+            public int bpmValue;
+            public String feelingTag;
+            public String note;
+
+            public HeartRateRecordRequest(String userId, int bpmValue, String feelingTag, String note) {
+                this.userId = userId;
+                this.bpmValue = bpmValue;
+                this.feelingTag = feelingTag;
+                this.note = note;
+            }
         }
     }
 }

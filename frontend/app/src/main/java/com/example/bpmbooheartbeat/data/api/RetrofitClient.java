@@ -1,5 +1,7 @@
 package com.example.bpmbooheartbeat.data.api;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -9,6 +11,7 @@ public class RetrofitClient {
     private static Retrofit retrofit = null;
 
     private static final String BASE_URL = "http://127.0.0.1:5001/";
+    private static final String BASE_URL = "https://your-render-service.onrender.com/";
 
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
@@ -17,6 +20,9 @@ public class RetrofitClient {
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(logging)
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .readTimeout(15, TimeUnit.SECONDS)
+                    .writeTimeout(15, TimeUnit.SECONDS)
                     .build();
 
             retrofit = new Retrofit.Builder()
