@@ -49,16 +49,19 @@ public interface ApiService {
 
     @GET("api/heart-rates/{userId}")
     Call<ApiResponse> getHeartRateRecords(
+            @Header("Authorization") String token,
             @Path("userId") String userId
     );
 
     @GET("api/heart-rates/{userId}/stats")
     Call<ApiResponse> getHeartRateStats(
+            @Header("Authorization") String token,
             @Path("userId") String userId
     );
 
     @DELETE("api/heart-rates/{recordId}")
     Call<ApiResponse> deleteHeartRateRecord(
+            @Header("Authorization") String token,
             @Path("recordId") String recordId
     );
 
@@ -66,12 +69,21 @@ public interface ApiService {
     // Profile
     @GET("api/profile/{userId}")
     Call<ApiResponse> getProfile(
+            @Header("Authorization") String token,
             @Path("userId") String userId
     );
 
     @PUT("api/profile/{userId}")
     Call<ApiResponse> updateProfile(
+            @Header("Authorization") String token,
             @Path("userId") String userId,
             @Body ApiRequest.ProfileRequest request
+    );
+
+    // Insight / Analytics
+    @GET("api/insight/summary/{userId}")
+    Call<ApiResponse> getInsightSummary(
+            @Header("Authorization") String token,
+            @Path("userId") String userId
     );
 }

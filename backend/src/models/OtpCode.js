@@ -8,14 +8,23 @@ const otpCodeSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
-    otp: {
+
+    otpHash: {
       type: String,
       required: true
     },
+
+    purpose: {
+      type: String,
+      enum: ["register", "login"],
+      default: "login"
+    },
+
     expiresAt: {
       type: Date,
       required: true
     },
+
     isUsed: {
       type: Boolean,
       default: false
@@ -25,5 +34,7 @@ const otpCodeSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
+otpCodeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("OtpCode", otpCodeSchema);

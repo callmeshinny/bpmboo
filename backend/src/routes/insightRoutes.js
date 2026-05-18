@@ -1,8 +1,11 @@
 const express = require("express");
-const { createInsight } = require("../controllers/insightController");
+
+const {
+  getUserHeartRateInsight
+} = require("../controllers/insightController");
 
 const router = express.Router();
 
-router.post("/weekly", createInsight);
+router.get("/summary/:userId", getUserHeartRateInsight);
 
 module.exports = router;

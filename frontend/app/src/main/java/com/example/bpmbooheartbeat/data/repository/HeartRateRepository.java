@@ -110,14 +110,15 @@ public class HeartRateRepository {
     public MutableLiveData<List<HeartRateRecord>> getRemoteRecords() {
         MutableLiveData<List<HeartRateRecord>> result = new MutableLiveData<>();
         String token = authPrefs.getToken();
+        String userId = authPrefs.getUserId();
 
-        if (token == null) {
+        if (token == null || userId == null) {
             Log.w(TAG, "Not logged in, cannot fetch remote records");
             result.setValue(null);
             return result;
         }
 
-        RetrofitClient.getApiService().getHeartRateRecords("Bearer " + token)
+        RetrofitClient.getApiService().getHeartRateRecords("Bearer " + token, userId)
                 .enqueue(new Callback<ApiResponse>() {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {

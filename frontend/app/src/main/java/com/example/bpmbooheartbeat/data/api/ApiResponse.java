@@ -8,6 +8,7 @@ public class ApiResponse {
     public String token;
     public UserData user;
     public List<HeartRateRecordData> data;
+    public Object insightData; // For nested insight response
 
     public static class UserData {
         public String _id;
@@ -40,6 +41,13 @@ public class ApiResponse {
         public double averageBpm;
         public int maxBpm;
         public int minBpm;
+        public int totalRecords;
         public int count;
+        public String trend; // "ascending", "descending", or "stable"
+    }
+
+    public static class InsightResponseData {
+        public StatsData stats;
+        public String insight; // Combined English + Vietnamese insight from Gemini
     }
 }

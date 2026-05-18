@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Change this to your actual backend URL
-const BASE_URL = 'http://192.168.100.155:5001'; // Replace with your actual IP if needed
+const BASE_URL = 'https://bpmboo-backend.onrender.com'; // Render production URL
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

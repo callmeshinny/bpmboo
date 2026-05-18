@@ -5,8 +5,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +19,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.bpmbooheartbeat.R;
+import com.example.bpmbooheartbeat.data.api.ApiResponse;
+import com.example.bpmbooheartbeat.data.api.RetrofitClient;
 import com.example.bpmbooheartbeat.data.model.HeartRateRecord;
+import com.example.bpmbooheartbeat.utils.AuthPreferences;
 import com.example.bpmbooheartbeat.utils.ProfileImageUtils;
 import com.example.bpmbooheartbeat.viewmodel.HeartRateViewModel;
 import com.github.mikephil.charting.charts.BarChart;
@@ -23,6 +30,7 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.google.gson.Gson;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -30,6 +38,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AnalyticsFragment extends Fragment {
 
@@ -39,6 +51,11 @@ public class AnalyticsFragment extends Fragment {
     private TextView tvAverageBpm;
     private TextView tvMaximumBpm;
     private TextView tvMinimumBpm;
+    private TextView tvInsightContent;
+    private TextView tvTrendIndicator;
+    private ProgressBar pbInsightLoading;
+    private LinearLayout llInsightError;
+    private Button btnRetryInsight;
 
     @Nullable
     @Override
@@ -73,6 +90,13 @@ public class AnalyticsFragment extends Fragment {
         tvAverageBpm = root.findViewById(R.id.tvAverageBpm);
         tvMaximumBpm = root.findViewById(R.id.tvMaximumBpm);
         tvMinimumBpm = root.findViewById(R.id.tvMinimumBpm);
+        tvInsightContent = root.findViewById(R.id.tvInsightContent);
+        tvTrendIndicator = root.findViewById(R.id.tvTrendIndicator);
+        pbInsightLoading = root.findViewById(R.id.pbInsightLoading);
+        llInsightError = root.findViewById(R.id.llInsightError);
+        btnRetryInsight = root.findViewById(R.id.btnRetryInsight);
+
+        btnRetryInsight.setOnClickListener(v -> fetchInsight());
 
         viewModel = new ViewModelProvider(requireActivity()).get(HeartRateViewModel.class);
 
@@ -80,6 +104,8 @@ public class AnalyticsFragment extends Fragment {
             updateSummaryStats(records);
             setupWeeklyChart(records);
         });
+
+        fetchInsight();
 
         return root;
     }
@@ -93,6 +119,81 @@ public class AnalyticsFragment extends Fragment {
             ImageView imgAvatarAnalytics = root.findViewById(R.id.imgAvatarAnalytics);
             ProfileImageUtils.loadAvatar(requireContext(), imgAvatarAnalytics);
         }
+        
+        fetchInsight();
+    }
+
+    private void fetchInsight() {
+        String userId = AuthPreferences.getUserId(requireContext());
+        String token = AuthPreferences.getToken(requireContext());
+
+        if (userId == null || userId.isEmpty() || token == null || token.isEmpty()) {
+            showInsightError();
+            return;
+        }
+
+        pbInsightLoading.setVisibility(View.VISIBLE);
+        llInsightError.setVisibility(View.GONE);
+        tvInsightContent.setText("Loading your personalized insight...");
+
+        RetrofitClient.getApiService()
+                .getInsightSummary("Bearer " + token, userId)
+                .enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                        pbInsightLoading.setVisibility(View.GONE);
+
+                        if (response.isSuccessful() && response.body() != null) {
+                            ApiResponse apiResponse = response.body();
+
+                            if (apiResponse.success) {
+                                try {
+                                    Gson gson = new Gson();
+                                    ApiResponse.InsightResponseData insightData =
+                                            gson.fromJson(gson.toJsonTree(apiResponse.insightData),
+                                                    ApiResponse.InsightResponseData.class);
+
+                                    if (insightData != null && insightData.stats != null) {
+                                        // Update trend indicator
+                                        String trend = insightData.stats.trend;
+                                        if ("ascending".equalsIgnoreCase(trend)) {
+                                            tvTrendIndicator.setText("📈");
+                                        } else if ("descending".equalsIgnoreCase(trend)) {
+                                            tvTrendIndicator.setText("📉");
+                                        } else {
+                                            tvTrendIndicator.setText("📊");
+                                        }
+
+                                        // Display insight
+                                        if (insightData.insight != null && !insightData.insight.isEmpty()) {
+                                            tvInsightContent.setText(insightData.insight);
+                                        } else {
+                                            tvInsightContent.setText("No insight available yet.");
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    tvInsightContent.setText("Unable to parse insight data.");
+                                }
+                            } else {
+                                showInsightError();
+                            }
+                        } else {
+                            showInsightError();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<ApiResponse> call, @NonNull Throwable t) {
+                        pbInsightLoading.setVisibility(View.GONE);
+                        showInsightError();
+                    }
+                });
+    }
+
+    private void showInsightError() {
+        pbInsightLoading.setVisibility(View.GONE);
+        llInsightError.setVisibility(View.VISIBLE);
+        tvInsightContent.setText("Unable to load insight");
     }
 
     private void updateSummaryStats(List<HeartRateRecord> records) {

@@ -5,17 +5,16 @@ const {
   login
 } = require("../controllers/authController");
 
+const validate = require("../middleware/validateMiddleware");
+
 const {
-  requestOtp,
-  verifyOtpCode
-} = require("../controllers/otpController");
+  validateRegister,
+  validateLogin
+} = require("../validations/authValidation");
 
 const router = express.Router();
 
-router.post("/register", register);
-router.post("/login", login);
-
-router.post("/login/request-otp", requestOtp);
-router.post("/login/verify-otp", verifyOtpCode);
+router.post("/register", validate(validateRegister), register);
+router.post("/login", validate(validateLogin), login);
 
 module.exports = router;
