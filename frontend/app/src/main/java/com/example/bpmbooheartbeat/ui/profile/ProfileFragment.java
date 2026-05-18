@@ -130,7 +130,7 @@ public class ProfileFragment extends Fragment {
 
     private void uploadAvatarToServer(String avatarBase64) {
         String userId = authPrefs.getUserId();
-        String token = "Bearer " + authPrefs.getAccessToken();
+        String token = "Bearer " + authPrefs.getToken();
 
         ApiRequest.AvatarRequest request = new ApiRequest.AvatarRequest(avatarBase64);
 
