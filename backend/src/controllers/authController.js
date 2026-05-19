@@ -76,6 +76,7 @@ const register = async (req, res) => {
 
     // If email exists and already verified, reject
     if (existingUser && existingUser.isEmailVerified) {
+      console.log(`[Auth] Register: Email ${email} already exists and verified`);
       return res.status(409).json({
         success: false,
         message: "Email already exists."
@@ -84,16 +85,18 @@ const register = async (req, res) => {
 
     // If email exists but not verified, return existing user for OTP re-verification
     if (existingUser && !existingUser.isEmailVerified) {
+      console.log(`[Auth] Register: Email ${email} exists but pending verification, resending OTP...`);
       const token = createToken(existingUser);
       return res.status(200).json({
         success: true,
-        message: "Account pending verification. OTP has been sent.",
+        message: "Account pending verification. Please check your email for OTP.",
         token,
         user: formatUserResponse(existingUser)
       });
     }
 
     // Email doesn't exist, create new user with isEmailVerified=false
+    console.log(`[Auth] Register: Creating new user with email ${email}`);
     const passwordHash = await bcrypt.hash(password, 12);
 
     const user = await User.create({
@@ -108,6 +111,8 @@ const register = async (req, res) => {
       avatarUrl: avatarUrl || "",
       isEmailVerified: false
     });
+
+    console.log(`[Auth] ✅ User created successfully: ${email}`);
 
     const token = createToken(user);
 

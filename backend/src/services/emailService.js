@@ -123,6 +123,8 @@ const sendOtpEmail = async ({ to, otp, purpose = "login" }) => {
   const text = buildOtpEmailText(otp, purpose);
 
   try {
+    console.log(`[Email] Sending ${purpose} OTP to ${to}...`);
+
     const result = await transporter.sendMail({
       from: `"BPMBoo Heart Beat" <${process.env.EMAIL_USER}>`,
       to,
@@ -131,10 +133,12 @@ const sendOtpEmail = async ({ to, otp, purpose = "login" }) => {
       html
     });
 
-    console.log("Email sent successfully:", result.messageId);
+    console.log(`[Email] ✅ Email sent successfully to ${to}. MessageID: ${result.messageId}`);
     return true;
   } catch (error) {
-    console.error("Nodemailer error:", error);
+    console.error(`[Email] ❌ Failed to send email to ${to}:`, error.message);
+    console.error("[Email] Error code:", error.code);
+    console.error("[Email] Error response:", error.response);
     throw error;
   }
 };

@@ -538,6 +538,9 @@ public class ProfileFragment extends Fragment {
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
+        // Prevent selecting future dates
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
         dialog.show();
     }
 

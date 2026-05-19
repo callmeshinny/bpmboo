@@ -15,9 +15,10 @@ const requestOtp = async (req, res) => {
     const email = String(req.body.email).trim().toLowerCase();
     const purpose = req.body.purpose || "login";
 
-    if (purpose === "register") {
-      const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
+    // For register: user must exist (created during registration with isEmailVerified=false)
+    if (purpose === "register") {
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -33,9 +34,8 @@ const requestOtp = async (req, res) => {
       }
     }
 
+    // For login: user must exist
     if (purpose === "login") {
-      const user = await User.findOne({ email });
-
       if (!user) {
         return res.status(404).json({
           success: false,
@@ -44,6 +44,7 @@ const requestOtp = async (req, res) => {
       }
     }
 
+    // Mark old OTP codes as used
     await OtpCode.updateMany(
       {
         email,
@@ -55,9 +56,11 @@ const requestOtp = async (req, res) => {
       }
     );
 
+    // Generate and hash new OTP
     const otp = generateOtp();
     const otpHash = await hashOtp(otp);
 
+    // Save OTP to database
     await OtpCode.create({
       email,
       purpose,
@@ -65,14 +68,16 @@ const requestOtp = async (req, res) => {
       expiresAt: getOtpExpiryDate()
     });
 
+    console.log(`[OTP] Generated OTP for ${email} (purpose: ${purpose})`);
+
     // Send email asynchronously (non-blocking) - return response immediately
     sendOtpEmail({
       to: email,
       otp,
       purpose
     }).catch(err => {
-      console.error("Async email send error:", err.message);
-      console.error("Email stack:", err.stack);
+      console.error(`[OTP] Async email send error for ${email}:`, err.message);
+      console.error("[OTP] Email stack:", err.stack);
     });
 
     return res.status(200).json({
@@ -80,8 +85,8 @@ const requestOtp = async (req, res) => {
       message: "OTP has been sent to your email."
     });
   } catch (error) {
-    console.error("Request OTP error:", error.message);
-    console.error("Error stack:", error.stack);
+    console.error("[OTP] Request OTP error:", error.message);
+    console.error("[OTP] Error stack:", error.stack);
 
     return res.status(500).json({
       success: false,

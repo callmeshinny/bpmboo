@@ -1,11 +1,16 @@
 package com.example.bpmbooheartbeat.ui.onboarding;
 
 import android.app.DatePickerDialog;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
@@ -181,6 +186,9 @@ public class OnboardingFragment extends Fragment {
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
+
+        // Prevent selecting future dates
+        dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
 
         dialog.show();
     }
@@ -391,7 +399,9 @@ public class OnboardingFragment extends Fragment {
                     ApiResponse body = response.body();
 
                     if (body.success && body.user != null) {
-                        Toast.makeText(requireContext(), "Registration successful. Sending OTP...", Toast.LENGTH_SHORT).show();
+                        // Handle both new registration and pending verification
+                        String messageToShow = body.message != null ? body.message : "Sending OTP...";
+                        Toast.makeText(requireContext(), messageToShow, Toast.LENGTH_SHORT).show();
                         sendOtpAfterRegister(body.token, body.user._id, body.user.email);
                     } else {
                         Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
@@ -444,26 +454,62 @@ public class OnboardingFragment extends Fragment {
     }
 
     private void showOtpDialog(String token, String userId, String email) {
-        final EditText otpInput = new EditText(requireContext());
-        otpInput.setHint("Enter 6-digit OTP");
-        otpInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        otpInput.setPadding(40, 24, 40, 24);
+        // Inflate custom layout
+        LayoutInflater inflater = LayoutInflater.from(requireContext());
+        View dialogView = inflater.inflate(R.layout.dialog_otp, null);
+
+        TextView tvOtpTitle = dialogView.findViewById(R.id.tvOtpTitle);
+        TextView tvOtpMessage = dialogView.findViewById(R.id.tvOtpMessage);
+        EditText edtOtpInput = dialogView.findViewById(R.id.edtOtpInput);
+        TextView tvResendLink = dialogView.findViewById(R.id.tvResendLink);
+
+        tvOtpMessage.setText("We sent a 6-digit OTP to\n" + email);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Verify your email")
-                .setMessage("We sent a 6-digit OTP to " + email)
-                .setView(otpInput)
+                .setView(dialogView)
                 .setCancelable(false)
                 .setPositiveButton("Verify", null)
                 .setNegativeButton("Cancel", (d, which) -> d.dismiss())
                 .create();
 
+        // Set dialog width to 70% of screen
         dialog.setOnShowListener(d -> {
+            Window window = dialog.getWindow();
+            if (window != null) {
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int screenWidth = displayMetrics.widthPixels;
+                int dialogWidth = (int) (screenWidth * 0.7);
+
+                WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+                layoutParams.copyFrom(window.getAttributes());
+                layoutParams.width = dialogWidth;
+                window.setAttributes(layoutParams);
+
+                // Set corner radius
+                window.setBackgroundDrawableResource(android.R.color.transparent);
+                GradientDrawable drawable = new GradientDrawable();
+                drawable.setColor(Color.WHITE);
+                drawable.setCornerRadius(16f);
+                window.setBackgroundDrawable(drawable);
+            }
+
+            // Handle Resend OTP click
+            tvResendLink.setOnClickListener(v -> {
+                Toast.makeText(requireContext(), "Sending OTP again...", Toast.LENGTH_SHORT).show();
+                resendOtpEmail(email, "register");
+            });
+
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-                String otp = otpInput.getText().toString().trim();
+                String otp = edtOtpInput.getText().toString().trim();
 
                 if (otp.isEmpty()) {
-                    otpInput.setError("OTP is required");
+                    edtOtpInput.setError("OTP is required");
+                    return;
+                }
+
+                if (otp.length() != 6) {
+                    edtOtpInput.setError("OTP must be 6 digits");
                     return;
                 }
 
@@ -472,6 +518,30 @@ public class OnboardingFragment extends Fragment {
         });
 
         dialog.show();
+    }
+
+    private void resendOtpEmail(String email, String purpose) {
+        ApiRequest.OtpRequest otpRequest = new ApiRequest.OtpRequest(email, purpose);
+
+        RetrofitClient.getApiService().requestOtp(otpRequest).enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().success) {
+                    Toast.makeText(requireContext(), "OTP sent again to your email", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(
+                            requireContext(),
+                            getErrorMessage(response, "Failed to resend OTP"),
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Toast.makeText(requireContext(), "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void verifyOtp(
