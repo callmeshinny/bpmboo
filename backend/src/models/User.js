@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Giữ thêm field này để không bị lệch với otpController/Profile cũ
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
     otp: {
       type: String,
     },
@@ -41,14 +47,14 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre('save', async function (next) {
+// Hash password before saving
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
