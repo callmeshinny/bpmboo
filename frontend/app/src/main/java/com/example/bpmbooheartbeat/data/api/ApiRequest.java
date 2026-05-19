@@ -54,6 +54,7 @@ public class ApiRequest {
         public String timestamp;
 
         public HeartRateRecordRequest(int bpmValue, String feelingTag, String note) {
+            this.userId = null;
             this.bpmValue = bpmValue;
             this.feelingTag = feelingTag;
             this.note = note;
@@ -91,12 +92,14 @@ public class ApiRequest {
     public static class ProfileRequest {
         public String fullName;
         public String phone;
+        public String email;
         public String dob;
         public String gender;
         public String emergencyName;
         public String emergencyPhone;
         public String avatarUrl;
 
+        // Constructor cũ: giữ lại để không làm lỗi các file đang gọi ProfileRequest cũ
         public ProfileRequest(
                 String fullName,
                 String phone,
@@ -108,6 +111,28 @@ public class ApiRequest {
         ) {
             this.fullName = fullName;
             this.phone = phone;
+            this.email = null;
+            this.dob = dob;
+            this.gender = gender;
+            this.emergencyName = emergencyName;
+            this.emergencyPhone = emergencyPhone;
+            this.avatarUrl = avatarUrl;
+        }
+
+        // Constructor mới: dùng khi Profile tab cho phép update email
+        public ProfileRequest(
+                String fullName,
+                String phone,
+                String email,
+                String dob,
+                String gender,
+                String emergencyName,
+                String emergencyPhone,
+                String avatarUrl
+        ) {
+            this.fullName = fullName;
+            this.phone = phone;
+            this.email = email;
             this.dob = dob;
             this.gender = gender;
             this.emergencyName = emergencyName;

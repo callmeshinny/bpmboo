@@ -124,8 +124,10 @@ public class AnalyticsFragment extends Fragment {
     }
 
     private void fetchInsight() {
-        String userId = AuthPreferences.getUserId(requireContext());
-        String token = AuthPreferences.getToken(requireContext());
+        AuthPreferences authPrefs = new AuthPreferences(requireContext());
+
+        String userId = authPrefs.getUserId();
+        String token = authPrefs.getToken();
 
         if (userId == null || userId.isEmpty() || token == null || token.isEmpty()) {
             showInsightError();
@@ -149,22 +151,24 @@ public class AnalyticsFragment extends Fragment {
                             if (apiResponse.success) {
                                 try {
                                     Gson gson = new Gson();
+
                                     ApiResponse.InsightResponseData insightData =
-                                            gson.fromJson(gson.toJsonTree(apiResponse.insightData),
-                                                    ApiResponse.InsightResponseData.class);
+                                            gson.fromJson(
+                                                    gson.toJsonTree(apiResponse.insightData),
+                                                    ApiResponse.InsightResponseData.class
+                                            );
 
                                     if (insightData != null && insightData.stats != null) {
-                                        // Update trend indicator
                                         String trend = insightData.stats.trend;
+
                                         if ("ascending".equalsIgnoreCase(trend)) {
-                                            tvTrendIndicator.setText("📈");
+                                            tvTrendIndicator.setText("");
                                         } else if ("descending".equalsIgnoreCase(trend)) {
-                                            tvTrendIndicator.setText("📉");
+                                            tvTrendIndicator.setText("");
                                         } else {
-                                            tvTrendIndicator.setText("📊");
+                                            tvTrendIndicator.setText("");
                                         }
 
-                                        // Display insight
                                         if (insightData.insight != null && !insightData.insight.isEmpty()) {
                                             tvInsightContent.setText(insightData.insight);
                                         } else {

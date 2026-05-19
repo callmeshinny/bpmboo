@@ -1,5 +1,6 @@
 package com.example.bpmbooheartbeat.ui.onboarding;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +26,8 @@ import com.example.bpmbooheartbeat.utils.AuthPreferences;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.Calendar;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,20 +41,25 @@ public class OnboardingFragment extends Fragment {
     private EditText edtPassword;
     private EditText edtPasswordConfirm;
     private EditText edtFullName;
+    private EditText edtPhone;
+    private EditText edtDob;
+    private EditText edtEmergencyName;
+    private EditText edtEmergencyPhone;
+
+    private RadioGroup rgGender;
+
     private MaterialButton btnSubmit;
     private TextView tvToggleMode;
     private ProgressBar progressBar;
 
     private View registerOnlySection;
-    private EditText edtPhone;
-    private EditText edtEmergencyName;
-    private EditText edtEmergencyPhone;
 
     private TextInputLayout layoutEmail;
     private TextInputLayout layoutPassword;
     private TextInputLayout layoutPasswordConfirm;
     private TextInputLayout layoutFullName;
     private TextInputLayout layoutPhone;
+    private TextInputLayout layoutDob;
 
     @Nullable
     @Override
@@ -63,16 +72,20 @@ public class OnboardingFragment extends Fragment {
 
         authPrefs = new AuthPreferences(requireContext());
 
-        if (authPrefs.isLoggedIn()) {
-            Navigation.findNavController(root).navigate(R.id.measureFragment);
-            return root;
-        }
-
         bindViews(root);
         setupListeners();
         showLoginMode();
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (authPrefs != null && authPrefs.isLoggedIn()) {
+            Navigation.findNavController(view).navigate(R.id.measureFragment);
+        }
     }
 
     private void bindViews(View root) {
@@ -82,6 +95,12 @@ public class OnboardingFragment extends Fragment {
         edtPassword = root.findViewById(R.id.edtPassword);
         edtPasswordConfirm = root.findViewById(R.id.edtPasswordConfirm);
         edtFullName = root.findViewById(R.id.edtFullName);
+        edtPhone = root.findViewById(R.id.edtPhone);
+        edtDob = root.findViewById(R.id.edtDob);
+        edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
+        edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
+
+        rgGender = root.findViewById(R.id.rgGender);
 
         btnSubmit = root.findViewById(R.id.btnSubmit);
         tvToggleMode = root.findViewById(R.id.tvToggleMode);
@@ -92,11 +111,9 @@ public class OnboardingFragment extends Fragment {
         layoutPasswordConfirm = root.findViewById(R.id.layoutPasswordConfirm);
         layoutFullName = root.findViewById(R.id.layoutFullName);
         layoutPhone = root.findViewById(R.id.layoutPhone);
+        layoutDob = root.findViewById(R.id.layoutDob);
 
         registerOnlySection = root.findViewById(R.id.registerOnlySection);
-        edtPhone = root.findViewById(R.id.edtPhone);
-        edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
-        edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
     }
 
     private void setupListeners() {
@@ -109,6 +126,8 @@ public class OnboardingFragment extends Fragment {
         });
 
         tvToggleMode.setOnClickListener(v -> toggleAuthMode());
+
+        edtDob.setOnClickListener(v -> showDatePicker());
     }
 
     private void showLoginMode() {
@@ -149,12 +168,44 @@ public class OnboardingFragment extends Fragment {
         tvToggleMode.setEnabled(!isLoading);
     }
 
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+
+        DatePickerDialog dialog = new DatePickerDialog(
+                requireContext(),
+                (view, year, month, dayOfMonth) -> {
+                    String dob = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year);
+                    edtDob.setText(dob);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        dialog.show();
+    }
+
+    private String getSelectedGender() {
+        int checkedId = rgGender.getCheckedRadioButtonId();
+
+        if (checkedId == R.id.rbMale) {
+            return "Male";
+        } else if (checkedId == R.id.rbFemale) {
+            return "Female";
+        } else if (checkedId == R.id.rbOther) {
+            return "Other";
+        }
+
+        return "";
+    }
+
     private void clearValidationErrors() {
         if (layoutEmail != null) layoutEmail.setError(null);
         if (layoutPassword != null) layoutPassword.setError(null);
         if (layoutPasswordConfirm != null) layoutPasswordConfirm.setError(null);
         if (layoutFullName != null) layoutFullName.setError(null);
         if (layoutPhone != null) layoutPhone.setError(null);
+        if (layoutDob != null) layoutDob.setError(null);
     }
 
     private boolean validateLoginForm(String email, String password) {
@@ -180,7 +231,9 @@ public class OnboardingFragment extends Fragment {
             String password,
             String passwordConfirm,
             String fullName,
-            String phone
+            String phone,
+            String dob,
+            String gender
     ) {
         clearValidationErrors();
 
@@ -208,6 +261,16 @@ public class OnboardingFragment extends Fragment {
 
         if (phone.isEmpty()) {
             layoutPhone.setError("Phone number is required");
+            isValid = false;
+        }
+
+        if (dob.isEmpty() || dob.equals("Select date of birth")) {
+            layoutDob.setError("Date of birth is required");
+            isValid = false;
+        }
+
+        if (gender.isEmpty()) {
+            Toast.makeText(requireContext(), "Please select gender", Toast.LENGTH_SHORT).show();
             isValid = false;
         }
 
@@ -295,10 +358,12 @@ public class OnboardingFragment extends Fragment {
         String passwordConfirm = edtPasswordConfirm.getText().toString().trim();
         String fullName = edtFullName.getText().toString().trim();
         String phone = edtPhone.getText().toString().trim();
+        String dob = edtDob.getText().toString().trim();
+        String gender = getSelectedGender();
         String emergencyName = edtEmergencyName.getText().toString().trim();
         String emergencyPhone = edtEmergencyPhone.getText().toString().trim();
 
-        if (!validateRegisterForm(email, password, passwordConfirm, fullName, phone)) {
+        if (!validateRegisterForm(email, password, passwordConfirm, fullName, phone, dob, gender)) {
             Toast.makeText(requireContext(), "Please check your information", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -310,8 +375,8 @@ public class OnboardingFragment extends Fragment {
                 password,
                 fullName,
                 phone,
-                "",
-                "",
+                dob,
+                gender,
                 emergencyName,
                 emergencyPhone,
                 ""
@@ -327,9 +392,6 @@ public class OnboardingFragment extends Fragment {
 
                     if (body.success && body.user != null) {
                         Toast.makeText(requireContext(), "Registration successful. Sending OTP...", Toast.LENGTH_SHORT).show();
-
-                        // Do not navigate immediately.
-                        // Send OTP first, then navigate only after OTP is verified.
                         sendOtpAfterRegister(body.token, body.user._id, body.user.email);
                     } else {
                         Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
