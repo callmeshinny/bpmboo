@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
 const HeartRateRecord = require("../models/HeartRateRecord");
+const OtpCode = require("../models/OtpCode");
 const { encryptText, decryptText } = require("../utils/cryptoUtils");
 
 const isValidEmail = (email) => {
@@ -255,7 +256,8 @@ const deleteAccount = async (req, res) => {
   try {
     const userId = req.user.userId;
 
-    const user = await User.findByIdAndDelete(userId);
+    // Get user info before deletion to access email
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -264,8 +266,14 @@ const deleteAccount = async (req, res) => {
       });
     }
 
-    // Also delete all heart rate records
+    const email = user.email;
+
+    // Delete all related data
     await HeartRateRecord.deleteMany({ userId });
+    await OtpCode.deleteMany({ email });
+
+    // Finally delete the user
+    await User.findByIdAndDelete(userId);
 
     return res.status(200).json({
       success: true,

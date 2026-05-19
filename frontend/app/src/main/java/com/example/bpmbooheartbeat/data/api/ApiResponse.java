@@ -6,9 +6,24 @@ public class ApiResponse {
     public boolean success;
     public String message;
     public String token;
+
+    // Auth / Profile response
     public UserData user;
+
+    // Heart-rate list response
     public List<HeartRateRecordData> data;
-    public Object insightData; // For nested insight response
+
+    // Heart-rate single record response, nếu backend trả record riêng
+    public HeartRateRecordData record;
+
+    // Stats response
+    public StatsData stats;
+
+    // Insight response
+    public InsightResponseData insightData;
+
+    // Some backend responses may return nested object as data
+    public Object rawData;
 
     public static class UserData {
         public String _id;
@@ -43,11 +58,11 @@ public class ApiResponse {
         public int minBpm;
         public int totalRecords;
         public int count;
-        public String trend; // "ascending", "descending", or "stable"
+        public String trend;
     }
 
     public static class InsightResponseData {
         public StatsData stats;
-        public String insight; // Combined English + Vietnamese insight from Gemini
+        public String insight;
     }
 }

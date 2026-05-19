@@ -27,6 +27,11 @@ public interface ApiService {
             @Body ApiRequest.LoginRequest request
     );
 
+    @DELETE("api/auth/delete-account")
+    Call<ApiResponse> deleteAccount(
+            @Header("Authorization") String token
+    );
+
 
     // OTP for register / login
     @POST("api/otp/request")
@@ -53,10 +58,29 @@ public interface ApiService {
             @Path("userId") String userId
     );
 
+    @GET("api/heart-rates/{userId}/latest")
+    Call<ApiResponse> getLatestHeartRateRecord(
+            @Header("Authorization") String token,
+            @Path("userId") String userId
+    );
+
+    @GET("api/heart-rates/{userId}/take")
+    Call<ApiResponse> getTakenHeartRateRecords(
+            @Header("Authorization") String token,
+            @Path("userId") String userId
+    );
+
     @GET("api/heart-rates/{userId}/stats")
     Call<ApiResponse> getHeartRateStats(
             @Header("Authorization") String token,
             @Path("userId") String userId
+    );
+
+    @PUT("api/heart-rates/{recordId}")
+    Call<ApiResponse> updateHeartRateRecord(
+            @Header("Authorization") String token,
+            @Path("recordId") String recordId,
+            @Body ApiRequest.HeartRateRecordRequest request
     );
 
     @DELETE("api/heart-rates/{recordId}")
@@ -80,12 +104,14 @@ public interface ApiService {
             @Body ApiRequest.ProfileRequest request
     );
 
+
     // Insight / Analytics
     @GET("api/insight/summary/{userId}")
     Call<ApiResponse> getInsightSummary(
             @Header("Authorization") String token,
             @Path("userId") String userId
     );
+
 
     // Avatar / Profile Image
     @POST("api/avatar/{userId}")
@@ -97,6 +123,7 @@ public interface ApiService {
 
     @GET("api/avatar/{userId}")
     Call<ApiResponse> getAvatar(
+            @Header("Authorization") String token,
             @Path("userId") String userId
     );
 }
