@@ -45,6 +45,16 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.get("/api/version", (req, res) => {
+  res.status(200).json({
+    success: true,
+    service: "BPMBoo Backend",
+    version: "1.0.0",
+    environment: process.env.NODE_ENV || "development",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use("/api/otp", otpRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/insight", insightRoutes);

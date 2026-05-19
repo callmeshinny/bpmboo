@@ -141,7 +141,14 @@ const verifyOtpCode = async (req, res) => {
   }
 };
 
+const resendOtp = async (req, res) => {
+  // resendOtp is just an alias for requestOtp
+  // It invalidates previous OTPs and sends a new one
+  return requestOtp(req, res);
+};
+
 module.exports = {
   requestOtp,
+  resendOtp,
   verifyOtpCode
 };

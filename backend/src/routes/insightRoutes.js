@@ -1,8 +1,11 @@
 const express = require("express");
 
 const {
-  getUserHeartRateInsight
+  getUserHeartRateInsight,
+  generateHeartRateInsightAPI
 } = require("../controllers/insightController");
+
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -41,5 +44,27 @@ const router = express.Router();
  *         description: User not found
  */
 router.get("/summary/:userId", getUserHeartRateInsight);
+
+/**
+ * @swagger
+ * /api/insight/generate/{userId}:
+ *   post:
+ *     summary: Generate new AI insight for user
+ *     tags: [Insight]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Insight generated successfully
+ *       404:
+ *         description: User not found
+ */
+router.post("/generate/:userId", authMiddleware, generateHeartRateInsightAPI);
 
 module.exports = router;

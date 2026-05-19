@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   requestOtp,
+  resendOtp,
   verifyOtpCode
 } = require("../controllers/otpController");
 
@@ -37,6 +38,30 @@ const router = express.Router();
  *         description: Invalid email
  */
 router.post("/request", validate(validateOtpRequest), requestOtp);
+
+/**
+ * @swagger
+ * /api/otp/resend:
+ *   post:
+ *     summary: Resend OTP code to email
+ *     tags: [OTP]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: user@example.com
+ *     responses:
+ *       200:
+ *         description: OTP resent successfully
+ *       400:
+ *         description: Invalid email
+ */
+router.post("/resend", validate(validateOtpRequest), resendOtp);
 
 /**
  * @swagger

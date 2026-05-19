@@ -1,7 +1,9 @@
 const express = require("express");
 const {
   getProfile,
-  updateProfile
+  updateProfile,
+  updateProfileAvatar,
+  deleteProfileAvatar
 } = require("../controllers/profileController");
 
 const router = express.Router();
@@ -66,5 +68,59 @@ router.get("/:userId", getProfile);
  *         description: Profile updated successfully
  */
 router.put("/:userId", updateProfile);
+
+/**
+ * @swagger
+ * /api/profile/{userId}/avatar:
+ *   patch:
+ *     summary: Update user profile avatar
+ *     tags: [Profile]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               avatarUrl:
+ *                 type: string
+ *                 example: "https://example.com/avatar.jpg"
+ *     responses:
+ *       200:
+ *         description: Avatar updated successfully
+ *       404:
+ *         description: User not found
+ */
+router.patch("/:userId/avatar", updateProfileAvatar);
+
+/**
+ * @swagger
+ * /api/profile/{userId}/avatar:
+ *   delete:
+ *     summary: Delete user profile avatar
+ *     tags: [Profile]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Avatar deleted successfully
+ *       404:
+ *         description: User not found
+ */
+router.delete("/:userId/avatar", deleteProfileAvatar);
 
 module.exports = router;

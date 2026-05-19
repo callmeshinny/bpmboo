@@ -2,10 +2,14 @@ const express = require("express");
 
 const {
   register,
-  login
+  login,
+  getMe,
+  changePassword,
+  deleteAccount
 } = require("../controllers/authController");
 
 const validate = require("../middleware/validateMiddleware");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const {
   validateRegister,
@@ -83,5 +87,72 @@ router.post("/register", validate(validateRegister), register);
  *         description: Invalid credentials
  */
 router.post("/login", validate(validateLogin), login);
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current authenticated user information
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user information
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.get("/me", authMiddleware, getMe);
+
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   put:
+ *     summary: Change user password
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: OldPassword@123
+ *               newPassword:
+ *                 type: string
+ *                 example: NewPassword@123
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Invalid input
+ *       401:
+ *         description: Current password incorrect
+ */
+router.put("/change-password", authMiddleware, changePassword);
+
+/**
+ * @swagger
+ * /api/auth/delete-account:
+ *   delete:
+ *     summary: Delete user account and all associated data
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.delete("/delete-account", authMiddleware, deleteAccount);
 
 module.exports = router;
