@@ -31,11 +31,18 @@ const router = express.Router();
  *               email:
  *                 type: string
  *                 example: user@example.com
+ *               purpose:
+ *                 type: string
+ *                 enum: [register, login]
+ *                 example: register
+ *                 description: Purpose for requesting OTP - "register" for new account verification, "login" for login verification
  *     responses:
  *       200:
  *         description: OTP sent successfully
  *       400:
- *         description: Invalid email
+ *         description: Invalid email or purpose
+ *       404:
+ *         description: User not found
  */
 router.post("/request", validate(validateOtpRequest), requestOtp);
 
@@ -79,14 +86,22 @@ router.post("/resend", validate(validateOtpRequest), resendOtp);
  *               email:
  *                 type: string
  *                 example: user@example.com
- *               otpCode:
+ *               otp:
  *                 type: string
  *                 example: "123456"
+ *                 description: 6-digit OTP code
+ *               purpose:
+ *                 type: string
+ *                 enum: [register, login]
+ *                 example: register
+ *                 description: Purpose for verifying OTP - must match the purpose used in request
  *     responses:
  *       200:
  *         description: OTP verified successfully
  *       400:
- *         description: Invalid OTP
+ *         description: Invalid OTP or email
+ *       404:
+ *         description: OTP code not found or expired
  */
 router.post("/verify", validate(validateOtpVerify), verifyOtpCode);
 

@@ -65,11 +65,23 @@ const requestOtp = async (req, res) => {
       expiresAt: getOtpExpiryDate()
     });
 
-    await sendOtpEmail({
-      to: email,
-      otp,
-      purpose
-    });
+    try {
+      await sendOtpEmail({
+        to: email,
+        otp,
+        purpose
+      });
+    } catch (emailError) {
+      console.error("Email send error:", emailError.message);
+      console.error("Email stack:", emailError.stack);
+      
+      // Still return success if OTP is saved, but mark as email-not-sent
+      return res.status(500).json({
+        success: false,
+        message: "OTP saved but failed to send email.",
+        error: emailError.message
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -77,6 +89,7 @@ const requestOtp = async (req, res) => {
     });
   } catch (error) {
     console.error("Request OTP error:", error.message);
+    console.error("Error stack:", error.stack);
 
     return res.status(500).json({
       success: false,
