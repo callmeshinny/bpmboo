@@ -13,9 +13,12 @@ public class ApiRequest {
     }
 
     public static class RegisterRequest {
+        public String name;
         public String email;
         public String password;
-        public String fullName;
+
+        // Các field này giữ lại nếu backend sau này dùng profile,
+        // nhưng register backend hiện tại chỉ cần name, email, password.
         public String phone;
         public String dob;
         public String gender;
@@ -34,9 +37,9 @@ public class ApiRequest {
                 String emergencyPhone,
                 String avatarUrl
         ) {
+            this.name = fullName;
             this.email = email;
             this.password = password;
-            this.fullName = fullName;
             this.phone = phone;
             this.dob = dob;
             this.gender = gender;
@@ -99,7 +102,6 @@ public class ApiRequest {
         public String emergencyPhone;
         public String avatarUrl;
 
-        // Constructor cũ: giữ lại để không làm lỗi các file đang gọi ProfileRequest cũ
         public ProfileRequest(
                 String fullName,
                 String phone,
@@ -119,7 +121,6 @@ public class ApiRequest {
             this.avatarUrl = avatarUrl;
         }
 
-        // Constructor mới: dùng khi Profile tab cho phép update email
         public ProfileRequest(
                 String fullName,
                 String phone,

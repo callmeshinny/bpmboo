@@ -277,10 +277,13 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+    console.error('Login error message:', error.message);
+    console.error('Login error stack:', error.stack);
 
     return res.status(500).json({
       success: false,
       message: 'Server error during login',
+      error: error.message,
     });
   }
 };

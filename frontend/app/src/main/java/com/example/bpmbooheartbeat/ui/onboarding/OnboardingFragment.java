@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -187,9 +186,7 @@ public class OnboardingFragment extends Fragment {
                 calendar.get(Calendar.DAY_OF_MONTH)
         );
 
-        // Prevent selecting future dates
         dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
-
         dialog.show();
     }
 
@@ -337,7 +334,9 @@ public class OnboardingFragment extends Fragment {
                     ApiResponse body = response.body();
 
                     if (body.success && body.user != null) {
-                        authPrefs.saveAuthData(body.token, body.user._id, body.user.email);
+                        String userId = body.user.getSafeId();
+
+                        authPrefs.saveAuthData(body.token, userId, body.user.email);
                         Toast.makeText(requireContext(), "Login successful!", Toast.LENGTH_SHORT).show();
                         Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
                     } else {
@@ -398,11 +397,13 @@ public class OnboardingFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     ApiResponse body = response.body();
 
-                    if (body.success && body.user != null) {
-                        // Handle both new registration and pending verification
-                        String messageToShow = body.message != null ? body.message : "Sending OTP...";
+                    if (body.success) {
+                        String messageToShow = body.message != null
+                                ? body.message
+                                : "OTP has been sent to your email.";
+
                         Toast.makeText(requireContext(), messageToShow, Toast.LENGTH_SHORT).show();
-                        sendOtpAfterRegister(body.token, body.user._id, body.user.email);
+                        showOtpDialog(email);
                     } else {
                         Toast.makeText(requireContext(), body.message, Toast.LENGTH_SHORT).show();
                     }
@@ -423,42 +424,10 @@ public class OnboardingFragment extends Fragment {
         });
     }
 
-    private void sendOtpAfterRegister(String token, String userId, String email) {
-        setLoading(true);
-
-        ApiRequest.OtpRequest otpRequest = new ApiRequest.OtpRequest(email, "register");
-
-        RetrofitClient.getApiService().requestOtp(otpRequest).enqueue(new Callback<ApiResponse>() {
-            @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
-                setLoading(false);
-
-                if (response.isSuccessful() && response.body() != null && response.body().success) {
-                    Toast.makeText(requireContext(), "OTP sent to your email", Toast.LENGTH_SHORT).show();
-                    showOtpDialog(token, userId, email);
-                } else {
-                    Toast.makeText(
-                            requireContext(),
-                            getErrorMessage(response, "Failed to send OTP"),
-                            Toast.LENGTH_LONG
-                    ).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
-                setLoading(false);
-                Toast.makeText(requireContext(), "OTP error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void showOtpDialog(String token, String userId, String email) {
-        // Inflate custom layout
+    private void showOtpDialog(String email) {
         LayoutInflater inflater = LayoutInflater.from(requireContext());
         View dialogView = inflater.inflate(R.layout.dialog_otp, null);
 
-        TextView tvOtpTitle = dialogView.findViewById(R.id.tvOtpTitle);
         TextView tvOtpMessage = dialogView.findViewById(R.id.tvOtpMessage);
         EditText edtOtpInput = dialogView.findViewById(R.id.edtOtpInput);
         TextView tvResendLink = dialogView.findViewById(R.id.tvResendLink);
@@ -472,12 +441,13 @@ public class OnboardingFragment extends Fragment {
                 .setNegativeButton("Cancel", (d, which) -> d.dismiss())
                 .create();
 
-        // Set dialog width to 70% of screen
         dialog.setOnShowListener(d -> {
             Window window = dialog.getWindow();
+
             if (window != null) {
                 DisplayMetrics displayMetrics = new DisplayMetrics();
                 requireActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
                 int screenWidth = displayMetrics.widthPixels;
                 int dialogWidth = (int) (screenWidth * 0.7);
 
@@ -486,18 +456,17 @@ public class OnboardingFragment extends Fragment {
                 layoutParams.width = dialogWidth;
                 window.setAttributes(layoutParams);
 
-                // Set corner radius
                 window.setBackgroundDrawableResource(android.R.color.transparent);
+
                 GradientDrawable drawable = new GradientDrawable();
                 drawable.setColor(Color.WHITE);
                 drawable.setCornerRadius(16f);
                 window.setBackgroundDrawable(drawable);
             }
 
-            // Handle Resend OTP click
             tvResendLink.setOnClickListener(v -> {
                 Toast.makeText(requireContext(), "Sending OTP again...", Toast.LENGTH_SHORT).show();
-                resendOtpEmail(email, "register");
+                resendOtpEmail(email);
             });
 
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
@@ -513,17 +482,17 @@ public class OnboardingFragment extends Fragment {
                     return;
                 }
 
-                verifyOtp(token, userId, email, otp, dialog);
+                verifyOtp(email, otp, dialog);
             });
         });
 
         dialog.show();
     }
 
-    private void resendOtpEmail(String email, String purpose) {
-        ApiRequest.OtpRequest otpRequest = new ApiRequest.OtpRequest(email, purpose);
+    private void resendOtpEmail(String email) {
+        ApiRequest.OtpRequest otpRequest = new ApiRequest.OtpRequest(email, "register");
 
-        RetrofitClient.getApiService().requestOtp(otpRequest).enqueue(new Callback<ApiResponse>() {
+        RetrofitClient.getApiService().resendAuthOtp(otpRequest).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null && response.body().success) {
@@ -544,30 +513,33 @@ public class OnboardingFragment extends Fragment {
         });
     }
 
-    private void verifyOtp(
-            String token,
-            String userId,
-            String email,
-            String otp,
-            AlertDialog dialog
-    ) {
+    private void verifyOtp(String email, String otp, AlertDialog dialog) {
         setLoading(true);
 
         ApiRequest.VerifyOtpRequest verifyRequest =
                 new ApiRequest.VerifyOtpRequest(email, otp, "register");
 
-        RetrofitClient.getApiService().verifyOtp(verifyRequest).enqueue(new Callback<ApiResponse>() {
+        RetrofitClient.getApiService().verifyAuthOtp(verifyRequest).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 setLoading(false);
 
                 if (response.isSuccessful() && response.body() != null && response.body().success) {
+                    ApiResponse body = response.body();
                     dialog.dismiss();
 
-                    authPrefs.saveAuthData(token, userId, email);
+                    if (body.user != null && body.token != null) {
+                        String userId = body.user.getSafeId();
+                        String userEmail = body.user.email != null ? body.user.email : email;
 
-                    Toast.makeText(requireContext(), "Email verified successfully!", Toast.LENGTH_SHORT).show();
-                    Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
+                        authPrefs.saveAuthData(body.token, userId, userEmail);
+
+                        Toast.makeText(requireContext(), "Email verified successfully!", Toast.LENGTH_SHORT).show();
+                        Navigation.findNavController(requireView()).navigate(R.id.measureFragment);
+                    } else {
+                        Toast.makeText(requireContext(), "Email verified. Please login.", Toast.LENGTH_SHORT).show();
+                        showLoginMode();
+                    }
                 } else {
                     Toast.makeText(
                             requireContext(),

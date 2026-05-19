@@ -6,27 +6,21 @@ public class ApiResponse {
     public boolean success;
     public String message;
     public String token;
+    public String email;
 
-    // Auth / Profile response
     public UserData user;
 
-    // Heart-rate list response
     public List<HeartRateRecordData> data;
-
-    // Heart-rate single record response, nếu backend trả record riêng
     public HeartRateRecordData record;
-
-    // Stats response
     public StatsData stats;
-
-    // Insight response
     public InsightResponseData insightData;
-
-    // Some backend responses may return nested object as data
     public Object rawData;
 
     public static class UserData {
+        public String id;
         public String _id;
+
+        public String name;
         public String email;
         public String fullName;
         public String phone;
@@ -36,9 +30,28 @@ public class ApiResponse {
         public String emergencyPhone;
         public String avatarUrl;
         public String role;
+
+        public boolean isVerified;
         public boolean isEmailVerified;
+
         public String createdAt;
         public String updatedAt;
+
+        public String getSafeId() {
+            if (_id != null && !_id.isEmpty()) {
+                return _id;
+            }
+
+            return id;
+        }
+
+        public String getSafeName() {
+            if (fullName != null && !fullName.isEmpty()) {
+                return fullName;
+            }
+
+            return name;
+        }
     }
 
     public static class HeartRateRecordData {

@@ -11,10 +11,8 @@ import retrofit2.http.Header;
 
 public interface ApiService {
 
-    // Health check
     @GET("api/health")
     Call<ApiResponse> healthCheck();
-
 
     // Auth
     @POST("api/auth/register")
@@ -27,13 +25,22 @@ public interface ApiService {
             @Body ApiRequest.LoginRequest request
     );
 
+    @POST("api/auth/verify-otp")
+    Call<ApiResponse> verifyAuthOtp(
+            @Body ApiRequest.VerifyOtpRequest request
+    );
+
+    @POST("api/auth/resend-otp")
+    Call<ApiResponse> resendAuthOtp(
+            @Body ApiRequest.OtpRequest request
+    );
+
     @DELETE("api/auth/delete-account")
     Call<ApiResponse> deleteAccount(
             @Header("Authorization") String token
     );
 
-
-    // OTP for register / login
+    // Old OTP routes - giữ lại nếu file khác còn gọi
     @POST("api/otp/request")
     Call<ApiResponse> requestOtp(
             @Body ApiRequest.OtpRequest request
@@ -43,7 +50,6 @@ public interface ApiService {
     Call<ApiResponse> verifyOtp(
             @Body ApiRequest.VerifyOtpRequest request
     );
-
 
     // Heart-rate records
     @POST("api/heart-rates")
@@ -89,7 +95,6 @@ public interface ApiService {
             @Path("recordId") String recordId
     );
 
-
     // Profile
     @GET("api/profile/{userId}")
     Call<ApiResponse> getProfile(
@@ -104,14 +109,12 @@ public interface ApiService {
             @Body ApiRequest.ProfileRequest request
     );
 
-
     // Insight / Analytics
     @GET("api/insight/summary/{userId}")
     Call<ApiResponse> getInsightSummary(
             @Header("Authorization") String token,
             @Path("userId") String userId
     );
-
 
     // Avatar / Profile Image
     @POST("api/avatar/{userId}")
