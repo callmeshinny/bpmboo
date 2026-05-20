@@ -46,8 +46,6 @@ public class ProfileFragment extends Fragment {
     private EditText edtFullName;
     private EditText edtPhoneNumber;
     private EditText edtEmail;
-    private EditText edtEmergencyName;
-    private EditText edtEmergencyPhone;
 
     private RadioGroup radioGenderGroup;
 
@@ -96,8 +94,6 @@ public class ProfileFragment extends Fragment {
         edtFullName = root.findViewById(R.id.edtFullName);
         edtPhoneNumber = root.findViewById(R.id.edtPhoneNumber);
         edtEmail = root.findViewById(R.id.edtEmail);
-        edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
-        edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
 
         radioGenderGroup = root.findViewById(R.id.radioGenderGroup);
     }
@@ -249,14 +245,6 @@ public class ProfileFragment extends Fragment {
 
         selectGender(user.gender);
 
-        edtEmergencyName.setText(
-                user.emergencyName != null ? user.emergencyName : ""
-        );
-
-        edtEmergencyPhone.setText(
-                user.emergencyPhone != null ? user.emergencyPhone : ""
-        );
-
         currentAvatarUrl = user.avatarUrl != null ? user.avatarUrl : "";
 
         if (!currentAvatarUrl.isEmpty()) {
@@ -286,8 +274,6 @@ public class ProfileFragment extends Fragment {
         String email = edtEmail.getText().toString().trim();
         String dob = tvDateOfBirth.getText().toString().trim();
         String gender = getSelectedGender();
-        String emergencyName = edtEmergencyName.getText().toString().trim();
-        String emergencyPhone = edtEmergencyPhone.getText().toString().trim();
 
         if (!validateProfileForm(fullName, phone, email, dob, gender)) {
             return;
@@ -299,8 +285,8 @@ public class ProfileFragment extends Fragment {
                 email,
                 dob,
                 gender,
-                emergencyName,
-                emergencyPhone,
+                "",
+                "",
                 currentAvatarUrl
         );
 
@@ -579,25 +565,33 @@ public class ProfileFragment extends Fragment {
     }
 
     private void showDeleteConfirmDialog() {
+        boolean isVietnamese = "vi".equals(LocaleHelper.getSavedLanguage(requireContext()));
+
+        String title = isVietnamese ? "Xoá tài khoản" : "Delete Account";
+        String message = isVietnamese
+                ? "Bạn có chắc chắn không? Việc xoá tài khoản sẽ xoá vĩnh viễn toàn bộ dữ liệu liên quan đến người dùng này."
+                : "Are you sure? Deleting your account will permanently remove all data associated with this user.";
+        String deleteText = isVietnamese ? "Xoá" : "Delete";
+        String cancelText = isVietnamese ? "Huỷ" : "Cancel";
+
         new AlertDialog.Builder(requireContext())
-                .setTitle("Delete Account")
-                .setMessage(
-                        "Are you sure? Deleting your account will permanently remove all data associated with this user."
-                )
-                .setPositiveButton("Delete", (dialog, which) -> {
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(deleteText, (dialog, which) -> {
                     deleteAccountFromBackend();
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(cancelText, null)
                 .show();
     }
 
     private void deleteAccountFromBackend() {
         String rawToken = authPrefs.getToken();
+        boolean isVietnamese = "vi".equals(LocaleHelper.getSavedLanguage(requireContext()));
 
         if (rawToken == null || rawToken.isEmpty()) {
             Toast.makeText(
                     requireContext(),
-                    "User session not found",
+                    isVietnamese ? "Không tìm thấy phiên đăng nhập" : "User session not found",
                     Toast.LENGTH_SHORT
             ).show();
 
@@ -621,7 +615,7 @@ public class ProfileFragment extends Fragment {
 
                             Toast.makeText(
                                     requireContext(),
-                                    "Account deleted successfully",
+                                    isVietnamese ? "Đã xoá tài khoản thành công" : "Account deleted successfully",
                                     Toast.LENGTH_SHORT
                             ).show();
 
@@ -630,7 +624,7 @@ public class ProfileFragment extends Fragment {
                         } else {
                             Toast.makeText(
                                     requireContext(),
-                                    "Failed to delete account",
+                                    isVietnamese ? "Không thể xoá tài khoản" : "Failed to delete account",
                                     Toast.LENGTH_SHORT
                             ).show();
                         }
@@ -640,7 +634,9 @@ public class ProfileFragment extends Fragment {
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
                         Toast.makeText(
                                 requireContext(),
-                                "Delete error: " + t.getMessage(),
+                                isVietnamese
+                                        ? "Lỗi xoá tài khoản: " + t.getMessage()
+                                        : "Delete error: " + t.getMessage(),
                                 Toast.LENGTH_LONG
                         ).show();
                     }
@@ -653,8 +649,6 @@ public class ProfileFragment extends Fragment {
         edtFullName.setText("");
         edtPhoneNumber.setText("");
         edtEmail.setText("");
-        edtEmergencyName.setText("");
-        edtEmergencyPhone.setText("");
 
         tvDateOfBirth.setText(
                 getString(R.string.select_date_of_birth)

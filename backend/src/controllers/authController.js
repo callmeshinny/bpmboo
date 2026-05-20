@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const HeartRateRecord = require("../models/HeartRateRecord");
 const generateOtp = require("../utils/generateOtp");
 const { sendOtpEmail } = require("../services/emailService");
 
@@ -13,8 +14,6 @@ const buildUserResponse = (user) => {
     phone: user.phone || "",
     dob: user.dob || "",
     gender: user.gender || "",
-    emergencyName: user.emergencyName || "",
-    emergencyPhone: user.emergencyPhone || "",
     avatarUrl: user.avatarUrl || "",
     role: user.role || "user",
     isVerified: user.isVerified,
@@ -42,8 +41,6 @@ const register = async (req, res) => {
       phone,
       dob,
       gender,
-      emergencyName,
-      emergencyPhone,
       avatarUrl,
     } = req.body;
 
@@ -87,8 +84,6 @@ const register = async (req, res) => {
       existingUser.phone = phone || "";
       existingUser.dob = dob || "";
       existingUser.gender = gender || "";
-      existingUser.emergencyName = emergencyName || "";
-      existingUser.emergencyPhone = emergencyPhone || "";
       existingUser.avatarUrl = avatarUrl || "";
       existingUser.otp = otp;
       existingUser.otpExpires = otpExpires;
@@ -105,8 +100,6 @@ const register = async (req, res) => {
         phone: phone || "",
         dob: dob || "",
         gender: gender || "",
-        emergencyName: emergencyName || "",
-        emergencyPhone: emergencyPhone || "",
         avatarUrl: avatarUrl || "",
         isVerified: false,
         isEmailVerified: false,
@@ -352,9 +345,55 @@ const login = async (req, res) => {
   }
 };
 
+const deleteAccount = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization token is required",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const userId = decoded.id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    await HeartRateRecord.deleteMany({ userId });
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Account deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    console.error("Delete account error message:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error during account deletion",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   register,
   verifyOtp,
   resendOtp,
   login,
+  deleteAccount,
 };

@@ -73,10 +73,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
             android:gravity="center"
+            android:lineSpacingExtra="2dp"
             android:text="@string/profile_description"
             android:textColor="@color/profile_text_secondary"
-            android:textSize="15sp"
-            android:lineSpacingExtra="2dp" />
+            android:textSize="15sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -210,52 +210,6 @@
         </RadioGroup>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="@string/emergency_contact_name"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/edtEmergencyName"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_profile_field_light"
-            android:hint="@string/enter_emergency_contact_name"
-            android:inputType="textPersonName"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/profile_text_secondary"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:text="@string/emergency_contact_phone"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold" />
-
-        <EditText
-            android:id="@+id/edtEmergencyPhone"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_profile_field_light"
-            android:hint="@string/enter_emergency_contact_phone"
-            android:inputType="phone"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/profile_text_secondary"
-            android:textSize="16sp" />
-
-        <TextView
             android:id="@+id/tvLanguage"
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -298,4 +252,5 @@
             android:textStyle="bold" />
 
     </LinearLayout>
+
 </ScrollView>

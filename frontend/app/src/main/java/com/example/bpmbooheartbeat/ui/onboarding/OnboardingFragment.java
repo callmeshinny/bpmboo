@@ -47,8 +47,6 @@ public class OnboardingFragment extends Fragment {
     private EditText edtFullName;
     private EditText edtPhone;
     private EditText edtDob;
-    private EditText edtEmergencyName;
-    private EditText edtEmergencyPhone;
 
     private RadioGroup rgGender;
 
@@ -101,8 +99,6 @@ public class OnboardingFragment extends Fragment {
         edtFullName = root.findViewById(R.id.edtFullName);
         edtPhone = root.findViewById(R.id.edtPhone);
         edtDob = root.findViewById(R.id.edtDob);
-        edtEmergencyName = root.findViewById(R.id.edtEmergencyName);
-        edtEmergencyPhone = root.findViewById(R.id.edtEmergencyPhone);
 
         rgGender = root.findViewById(R.id.rgGender);
 
@@ -367,8 +363,6 @@ public class OnboardingFragment extends Fragment {
         String phone = edtPhone.getText().toString().trim();
         String dob = edtDob.getText().toString().trim();
         String gender = getSelectedGender();
-        String emergencyName = edtEmergencyName.getText().toString().trim();
-        String emergencyPhone = edtEmergencyPhone.getText().toString().trim();
 
         if (!validateRegisterForm(email, password, passwordConfirm, fullName, phone, dob, gender)) {
             Toast.makeText(requireContext(), "Please check your information", Toast.LENGTH_SHORT).show();
@@ -384,8 +378,8 @@ public class OnboardingFragment extends Fragment {
                 phone,
                 dob,
                 gender,
-                emergencyName,
-                emergencyPhone,
+                "",
+                "",
                 ""
         );
 

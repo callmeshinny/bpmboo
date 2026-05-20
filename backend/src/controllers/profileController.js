@@ -10,8 +10,6 @@ const buildUserResponse = (user) => {
     phone: user.phone || "",
     dob: user.dob || "",
     gender: user.gender || "",
-    emergencyName: user.emergencyName || "",
-    emergencyPhone: user.emergencyPhone || "",
     avatarUrl: user.avatarUrl || "",
     role: user.role || "user",
     isVerified: user.isVerified,
@@ -34,11 +32,9 @@ const getProfile = async (req, res) => {
       });
     }
 
-    const userResponse = buildUserResponse(user);
-
     return res.status(200).json({
       success: true,
-      user: userResponse,
+      user: buildUserResponse(user),
     });
   } catch (error) {
     console.error("Get profile error:", error.message);
@@ -62,8 +58,6 @@ const updateProfile = async (req, res) => {
       email,
       dob,
       gender,
-      emergencyName,
-      emergencyPhone,
       avatarUrl,
     } = req.body;
 
@@ -75,8 +69,6 @@ const updateProfile = async (req, res) => {
       phone: phone || "",
       dob: dob || "",
       gender: gender || "",
-      emergencyName: emergencyName || "",
-      emergencyPhone: emergencyPhone || "",
       avatarUrl: avatarUrl || "",
     };
 
@@ -100,12 +92,10 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    const userResponse = buildUserResponse(updatedUser);
-
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully.",
-      user: userResponse,
+      user: buildUserResponse(updatedUser),
     });
   } catch (error) {
     console.error("Update profile error:", error.message);
@@ -146,12 +136,10 @@ const updateProfileAvatar = async (req, res) => {
       });
     }
 
-    const userResponse = buildUserResponse(updatedUser);
-
     return res.status(200).json({
       success: true,
       message: "Avatar updated successfully.",
-      user: userResponse,
+      user: buildUserResponse(updatedUser),
     });
   } catch (error) {
     console.error("Update avatar error:", error.message);
@@ -184,12 +172,10 @@ const deleteProfileAvatar = async (req, res) => {
       });
     }
 
-    const userResponse = buildUserResponse(updatedUser);
-
     return res.status(200).json({
       success: true,
       message: "Avatar deleted successfully.",
-      user: userResponse,
+      user: buildUserResponse(updatedUser),
     });
   } catch (error) {
     console.error("Delete avatar error:", error.message);

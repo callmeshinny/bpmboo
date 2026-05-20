@@ -47,18 +47,6 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    emergencyName: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
-    emergencyPhone: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
     avatarUrl: {
       type: String,
       default: "",
