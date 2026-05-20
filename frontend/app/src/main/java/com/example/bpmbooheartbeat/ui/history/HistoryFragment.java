@@ -6,15 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bpmbooheartbeat.R;
 import com.example.bpmbooheartbeat.utils.ProfileImageUtils;
@@ -39,7 +40,9 @@ public class HistoryFragment extends Fragment {
 
         TextView tvAppNameHistory = root.findViewById(R.id.tvAppNameHistory);
 
-        tvAppNameHistory.setOnClickListener(v -> reloadCurrentTab(v, R.id.historyFragment));
+        tvAppNameHistory.setOnClickListener(v -> {
+            reloadRemoteRecords();
+        });
 
         imgAvatarHistory.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.profileFragment)
@@ -53,9 +56,7 @@ public class HistoryFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(HeartRateViewModel.class);
 
-        viewModel.getAllRecords().observe(getViewLifecycleOwner(), records -> {
-            adapter.submitList(records);
-        });
+        reloadRemoteRecords();
 
         return root;
     }
@@ -65,10 +66,32 @@ public class HistoryFragment extends Fragment {
         super.onResume();
 
         View root = getView();
+
         if (root != null) {
             ImageView imgAvatarHistory = root.findViewById(R.id.imgAvatarHistory);
             ProfileImageUtils.loadAvatar(requireContext(), imgAvatarHistory);
         }
+
+        reloadRemoteRecords();
+    }
+
+    private void reloadRemoteRecords() {
+        if (viewModel == null || !isAdded()) {
+            return;
+        }
+
+        viewModel.getRemoteRecords().observe(getViewLifecycleOwner(), records -> {
+            if (records == null) {
+                Toast.makeText(
+                        requireContext(),
+                        "Unable to load heart-rate history",
+                        Toast.LENGTH_SHORT
+                ).show();
+                return;
+            }
+
+            adapter.submitList(records);
+        });
     }
 
     private void reloadCurrentTab(View view, int fragmentId) {

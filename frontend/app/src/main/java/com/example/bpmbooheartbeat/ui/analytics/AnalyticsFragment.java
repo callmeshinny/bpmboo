@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,9 +29,7 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.google.gson.Gson;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -71,16 +68,6 @@ public class AnalyticsFragment extends Fragment {
 
         ProfileImageUtils.loadAvatar(requireContext(), imgAvatarAnalytics);
 
-        tvAppNameAnalytics.setOnClickListener(v -> {
-            clearCharts();
-            if (viewModel != null) {
-                viewModel.getAllRecords().observe(getViewLifecycleOwner(), records -> {
-                    updateSummaryStats(records);
-                    setupWeeklyChart(records);
-                });
-            }
-        });
-
         imgAvatarAnalytics.setOnClickListener(v ->
                 Navigation.findNavController(v).navigate(R.id.profileFragment)
         );
@@ -96,15 +83,20 @@ public class AnalyticsFragment extends Fragment {
         llInsightError = root.findViewById(R.id.llInsightError);
         btnRetryInsight = root.findViewById(R.id.btnRetryInsight);
 
-        btnRetryInsight.setOnClickListener(v -> fetchInsight());
-
         viewModel = new ViewModelProvider(requireActivity()).get(HeartRateViewModel.class);
 
-        viewModel.getAllRecords().observe(getViewLifecycleOwner(), records -> {
-            updateSummaryStats(records);
-            setupWeeklyChart(records);
+        btnRetryInsight.setOnClickListener(v -> {
+            fetchInsight();
+            reloadRemoteAnalyticsData();
         });
 
+        tvAppNameAnalytics.setOnClickListener(v -> {
+            clearCharts();
+            fetchInsight();
+            reloadRemoteAnalyticsData();
+        });
+
+        reloadRemoteAnalyticsData();
         fetchInsight();
 
         return root;
@@ -115,12 +107,25 @@ public class AnalyticsFragment extends Fragment {
         super.onResume();
 
         View root = getView();
+
         if (root != null) {
             ImageView imgAvatarAnalytics = root.findViewById(R.id.imgAvatarAnalytics);
             ProfileImageUtils.loadAvatar(requireContext(), imgAvatarAnalytics);
         }
-        
+
+        reloadRemoteAnalyticsData();
         fetchInsight();
+    }
+
+    private void reloadRemoteAnalyticsData() {
+        if (viewModel == null || !isAdded()) {
+            return;
+        }
+
+        viewModel.getRemoteRecords().observe(getViewLifecycleOwner(), records -> {
+            updateSummaryStats(records);
+            setupWeeklyChart(records);
+        });
     }
 
     private void fetchInsight() {
@@ -142,44 +147,36 @@ public class AnalyticsFragment extends Fragment {
                 .getInsightSummary("Bearer " + token, userId)
                 .enqueue(new Callback<ApiResponse>() {
                     @Override
-                    public void onResponse(@NonNull Call<ApiResponse> call, @NonNull Response<ApiResponse> response) {
+                    public void onResponse(
+                            @NonNull Call<ApiResponse> call,
+                            @NonNull Response<ApiResponse> response
+                    ) {
                         pbInsightLoading.setVisibility(View.GONE);
 
-                        if (response.isSuccessful() && response.body() != null) {
-                            ApiResponse apiResponse = response.body();
+                        if (response.isSuccessful()
+                                && response.body() != null
+                                && response.body().success
+                                && response.body().insightData != null) {
 
-                            if (apiResponse.success) {
-                                try {
-                                    Gson gson = new Gson();
+                            ApiResponse.InsightResponseData insightData =
+                                    response.body().insightData;
 
-                                    ApiResponse.InsightResponseData insightData =
-                                            gson.fromJson(
-                                                    gson.toJsonTree(apiResponse.insightData),
-                                                    ApiResponse.InsightResponseData.class
-                                            );
+                            if (insightData.stats != null) {
+                                String trend = insightData.stats.trend;
 
-                                    if (insightData != null && insightData.stats != null) {
-                                        String trend = insightData.stats.trend;
-
-                                        if ("ascending".equalsIgnoreCase(trend)) {
-                                            tvTrendIndicator.setText("");
-                                        } else if ("descending".equalsIgnoreCase(trend)) {
-                                            tvTrendIndicator.setText("");
-                                        } else {
-                                            tvTrendIndicator.setText("");
-                                        }
-
-                                        if (insightData.insight != null && !insightData.insight.isEmpty()) {
-                                            tvInsightContent.setText(insightData.insight);
-                                        } else {
-                                            tvInsightContent.setText("No insight available yet.");
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    tvInsightContent.setText("Unable to parse insight data.");
+                                if ("ascending".equalsIgnoreCase(trend)) {
+                                    tvTrendIndicator.setText("Trend: Increasing");
+                                } else if ("descending".equalsIgnoreCase(trend)) {
+                                    tvTrendIndicator.setText("Trend: Decreasing");
+                                } else {
+                                    tvTrendIndicator.setText("Trend: Stable");
                                 }
+                            }
+
+                            if (insightData.insight != null && !insightData.insight.isEmpty()) {
+                                tvInsightContent.setText(insightData.insight);
                             } else {
-                                showInsightError();
+                                tvInsightContent.setText("No insight available yet.");
                             }
                         } else {
                             showInsightError();
@@ -218,7 +215,7 @@ public class AnalyticsFragment extends Fragment {
         int count = 0;
 
         for (HeartRateRecord record : records) {
-            int bpm = getIntField(record, "bpm", "heartRate", "rate");
+            int bpm = record.bpmValue;
 
             if (bpm <= 0) continue;
 
@@ -255,8 +252,8 @@ public class AnalyticsFragment extends Fragment {
 
         if (records != null) {
             for (HeartRateRecord record : records) {
-                int bpm = getIntField(record, "bpm", "heartRate", "rate");
-                long timestamp = getLongField(record, "timestamp", "time", "date", "createdAt");
+                int bpm = record.bpmValue;
+                long timestamp = record.timestamp;
 
                 if (bpm <= 0 || timestamp <= 0) continue;
 
@@ -270,6 +267,7 @@ public class AnalyticsFragment extends Fragment {
                     int chartIndex = 6 - daysAgo;
 
                     List<Integer> bpmList = dailyBpmMap.get(chartIndex);
+
                     if (bpmList != null) {
                         bpmList.add(bpm);
                     }
@@ -321,29 +319,5 @@ public class AnalyticsFragment extends Fragment {
             barChartWeekly.clear();
             barChartWeekly.invalidate();
         }
-    }
-
-    private int getIntField(HeartRateRecord record, String... fieldNames) {
-        for (String fieldName : fieldNames) {
-            try {
-                Field field = record.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.getInt(record);
-            } catch (Exception ignored) {
-            }
-        }
-        return 0;
-    }
-
-    private long getLongField(HeartRateRecord record, String... fieldNames) {
-        for (String fieldName : fieldNames) {
-            try {
-                Field field = record.getClass().getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.getLong(record);
-            } catch (Exception ignored) {
-            }
-        }
-        return 0;
     }
 }

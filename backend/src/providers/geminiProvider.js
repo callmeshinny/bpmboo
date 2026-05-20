@@ -3,11 +3,13 @@ const generateGeminiText = async (prompt) => {
     throw new Error("Missing GEMINI_API_KEY");
   }
 
+  const model = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+
   const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
 
   try {
     const response = await fetch(url, {
@@ -34,11 +36,17 @@ const generateGeminiText = async (prompt) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error?.message || `Gemini request failed with status ${response.status}`);
+      console.error("[Gemini] Error status:", response.status);
+      console.error("[Gemini] Error response:", data);
+
+      throw new Error(
+        data.error?.message ||
+        `Gemini request failed with status ${response.status}`
+      );
     }
 
     const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
+
     if (!content) {
       throw new Error("No content returned from Gemini API");
     }
@@ -46,11 +54,11 @@ const generateGeminiText = async (prompt) => {
     return content;
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error.name === "AbortError") {
-      throw new Error("Gemini API request timeout (10s)");
+      throw new Error("Gemini API request timeout");
     }
-    
+
     throw error;
   }
 };
