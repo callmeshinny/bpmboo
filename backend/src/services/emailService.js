@@ -2,7 +2,6 @@ const { createTransporter } = require("../providers/emailProvider");
 
 const buildOtpEmailHtml = (otp, purpose = "login") => {
   const actionText = purpose === "register" ? "sign-up" : "login";
-  const vietnameseActionText = purpose === "register" ? "đăng ký" : "đăng nhập";
 
   return `
     <!DOCTYPE html>
@@ -29,66 +28,43 @@ const buildOtpEmailHtml = (otp, purpose = "login") => {
 
                 <tr>
                   <td style="padding:28px;">
-                    <div style="margin-bottom:24px;">
-                      <p style="font-size:16px; margin:0 0 12px;">Hi there,</p>
+                    <p style="font-size:16px; margin:0 0 12px;">
+                      Hi there,
+                    </p>
 
-                      <p style="font-size:16px; margin:0 0 12px;">
-                        Your OTP code is:
-                      </p>
+                    <p style="font-size:16px; margin:0 0 12px;">
+                      Your OTP verification code is:
+                    </p>
 
-                      <div style="background-color:#f0f7f1; border:1px solid #c8e6c9; border-radius:10px; text-align:center; padding:22px; margin:20px 0;">
-                        <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2e7d32;">
-                          ${otp}
-                        </div>
+                    <div style="background-color:#f0f7f1; border:1px solid #c8e6c9; border-radius:10px; text-align:center; padding:22px; margin:20px 0;">
+                      <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2e7d32;">
+                        ${otp}
                       </div>
-
-                      <p style="font-size:15px; margin:0 0 10px;">
-                        Please use this OTP to complete your ${actionText} process.
-                      </p>
-
-                      <p style="font-size:15px; margin:0 0 10px;">
-                        This OTP is valid for <strong>5 minutes</strong>.
-                      </p>
-
-                      <p style="font-size:15px; margin:0;">
-                        If you did not request this ${actionText}, please ignore this email.
-                      </p>
                     </div>
 
-                    <hr style="border:none; border-top:1px solid #dddddd; margin:28px 0;" />
+                    <p style="font-size:15px; margin:0 0 10px;">
+                      Please use this OTP to complete your ${actionText} process.
+                    </p>
 
-                    <div>
-                      <p style="font-size:16px; margin:0 0 12px;">Xin chào,</p>
+                    <p style="font-size:15px; margin:0 0 10px;">
+                      This OTP is valid for <strong>5 minutes</strong>.
+                    </p>
 
-                      <p style="font-size:16px; margin:0 0 12px;">
-                        Mã OTP của bạn là:
-                      </p>
+                    <p style="font-size:15px; margin:0 0 10px;">
+                      If you did not request this ${actionText}, please ignore this email.
+                    </p>
 
-                      <div style="background-color:#f0f7f1; border:1px solid #c8e6c9; border-radius:10px; text-align:center; padding:22px; margin:20px 0;">
-                        <div style="font-size:34px; font-weight:bold; letter-spacing:6px; color:#2e7d32;">
-                          ${otp}
-                        </div>
-                      </div>
-
-                      <p style="font-size:15px; margin:0 0 10px;">
-                        Vui lòng sử dụng mã OTP này để hoàn tất quá trình ${vietnameseActionText}.
-                      </p>
-
-                      <p style="font-size:15px; margin:0 0 10px;">
-                        Mã OTP có hiệu lực trong <strong>5 phút</strong>.
-                      </p>
-
-                      <p style="font-size:15px; margin:0;">
-                        Nếu bạn không thực hiện yêu cầu ${vietnameseActionText}, vui lòng bỏ qua email này.
-                      </p>
-                    </div>
+                    <p style="font-size:15px; margin:24px 0 0;">
+                      Thank you,<br />
+                      BPMBoo Heart Beat Team
+                    </p>
                   </td>
                 </tr>
 
                 <tr>
                   <td style="background-color:#f8f8f8; padding:18px; text-align:center;">
                     <p style="margin:0; font-size:12px; color:#777;">
-                      This is an automated email from BPMBoo Heart Beat.
+                      This is an automated email from BPMBoo Heart Beat. Please do not share your OTP with anyone.
                     </p>
                   </td>
                 </tr>
@@ -104,31 +80,22 @@ const buildOtpEmailHtml = (otp, purpose = "login") => {
 
 const buildOtpEmailText = (otp, purpose = "login") => {
   const actionText = purpose === "register" ? "sign-up" : "login";
-  const vietnameseActionText = purpose === "register" ? "đăng ký" : "đăng nhập";
 
   return `BPMBoo Heart Beat
 
 Hi there,
 
-Your OTP code is: ${otp}
+Your OTP verification code is: ${otp}
 
 Please use this OTP to complete your ${actionText} process.
 This OTP is valid for 5 minutes.
 
 If you did not request this ${actionText}, please ignore this email.
 
----
+Thank you,
+BPMBoo Heart Beat Team
 
-Xin chào,
-
-Mã OTP của bạn là: ${otp}
-
-Vui lòng sử dụng mã OTP này để hoàn tất quá trình ${vietnameseActionText}.
-Mã OTP có hiệu lực trong 5 phút.
-
-Nếu bạn không thực hiện yêu cầu ${vietnameseActionText}, vui lòng bỏ qua email này.
-
-BPMBoo Heart Beat`;
+Please do not share your OTP with anyone.`;
 };
 
 const sendOtpEmail = async ({ to, otp, purpose = "login" }) => {
@@ -146,7 +113,7 @@ const sendOtpEmail = async ({ to, otp, purpose = "login" }) => {
     console.log(`[Email] Sending ${purpose} OTP to ${to}...`);
 
     const result = await transporter.sendMail({
-      from: `"BPMBoo Heart Beat" <${process.env.EMAIL_USER}>`,
+      from: `"BPMBoo Heart Beat" <${process.env.EMAIL_USER || process.env.BREVO_SENDER_EMAIL}>`,
       to,
       subject,
       text,

@@ -3,6 +3,27 @@ const User = require("../models/User");
 const generateOtp = require("../utils/generateOtp");
 const { sendOtpEmail } = require("../services/emailService");
 
+const buildUserResponse = (user) => {
+  return {
+    id: user._id,
+    _id: user._id,
+    name: user.name || user.fullName || "",
+    fullName: user.fullName || user.name || "",
+    email: user.email,
+    phone: user.phone || "",
+    dob: user.dob || "",
+    gender: user.gender || "",
+    emergencyName: user.emergencyName || "",
+    emergencyPhone: user.emergencyPhone || "",
+    avatarUrl: user.avatarUrl || "",
+    role: user.role || "user",
+    isVerified: user.isVerified,
+    isEmailVerified: user.isEmailVerified,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+};
+
 const generateToken = (userId) => {
   return jwt.sign(
     { id: userId },
@@ -11,12 +32,24 @@ const generateToken = (userId) => {
   );
 };
 
-// REGISTER: create account + send OTP
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name,
+      fullName,
+      email,
+      password,
+      phone,
+      dob,
+      gender,
+      emergencyName,
+      emergencyPhone,
+      avatarUrl,
+    } = req.body;
 
-    if (!name || !email || !password) {
+    const finalName = name || fullName;
+
+    if (!finalName || !email || !password) {
       return res.status(400).json({
         success: false,
         message: "Name, email and password are required",
@@ -46,11 +79,17 @@ const register = async (req, res) => {
 
     let user;
 
-    // If user registered but not verified, update info and send new OTP
     if (existingUser && !existingUser.isVerified && !existingUser.isEmailVerified) {
-      existingUser.name = name;
+      existingUser.name = finalName;
+      existingUser.fullName = finalName;
       existingUser.email = normalizedEmail;
       existingUser.password = password;
+      existingUser.phone = phone || "";
+      existingUser.dob = dob || "";
+      existingUser.gender = gender || "";
+      existingUser.emergencyName = emergencyName || "";
+      existingUser.emergencyPhone = emergencyPhone || "";
+      existingUser.avatarUrl = avatarUrl || "";
       existingUser.otp = otp;
       existingUser.otpExpires = otpExpires;
       existingUser.isVerified = false;
@@ -59,9 +98,16 @@ const register = async (req, res) => {
       user = await existingUser.save();
     } else {
       user = await User.create({
-        name,
+        name: finalName,
+        fullName: finalName,
         email: normalizedEmail,
         password,
+        phone: phone || "",
+        dob: dob || "",
+        gender: gender || "",
+        emergencyName: emergencyName || "",
+        emergencyPhone: emergencyPhone || "",
+        avatarUrl: avatarUrl || "",
         isVerified: false,
         isEmailVerified: false,
         otp,
@@ -69,7 +115,6 @@ const register = async (req, res) => {
       });
     }
 
-    // Send OTP email without blocking frontend response
     sendOtpEmail({
       to: normalizedEmail,
       otp,
@@ -86,6 +131,7 @@ const register = async (req, res) => {
       success: true,
       message: "Register successfully. OTP is being sent to your email.",
       email: user.email,
+      user: buildUserResponse(user),
     });
   } catch (error) {
     console.error("Register error:", error);
@@ -100,7 +146,6 @@ const register = async (req, res) => {
   }
 };
 
-// VERIFY OTP
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -130,14 +175,7 @@ const verifyOtp = async (req, res) => {
         success: true,
         message: "User is already verified",
         token,
-        user: {
-          id: user._id,
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          isVerified: user.isVerified,
-          isEmailVerified: user.isEmailVerified,
-        },
+        user: buildUserResponse(user),
       });
     }
 
@@ -175,14 +213,7 @@ const verifyOtp = async (req, res) => {
       success: true,
       message: "Email verified successfully",
       token,
-      user: {
-        id: user._id,
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isVerified: user.isVerified,
-        isEmailVerified: user.isEmailVerified,
-      },
+      user: buildUserResponse(user),
     });
   } catch (error) {
     console.error("Verify OTP error:", error);
@@ -196,7 +227,6 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-// RESEND OTP
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.body;
@@ -234,7 +264,6 @@ const resendOtp = async (req, res) => {
 
     await user.save();
 
-    // Send OTP email without blocking frontend response
     sendOtpEmail({
       to: normalizedEmail,
       otp,
@@ -263,7 +292,6 @@ const resendOtp = async (req, res) => {
   }
 };
 
-// LOGIN
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -310,14 +338,7 @@ const login = async (req, res) => {
       success: true,
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isVerified: user.isVerified,
-        isEmailVerified: user.isEmailVerified,
-      },
+      user: buildUserResponse(user),
     });
   } catch (error) {
     console.error("Login error:", error);

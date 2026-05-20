@@ -1,5 +1,26 @@
 const User = require("../models/User");
 
+const buildUserResponse = (user) => {
+  return {
+    id: user._id,
+    _id: user._id,
+    name: user.name || user.fullName || "",
+    fullName: user.fullName || user.name || "",
+    email: user.email,
+    phone: user.phone || "",
+    dob: user.dob || "",
+    gender: user.gender || "",
+    emergencyName: user.emergencyName || "",
+    emergencyPhone: user.emergencyPhone || "",
+    avatarUrl: user.avatarUrl || "",
+    role: user.role || "user",
+    isVerified: user.isVerified,
+    isEmailVerified: user.isEmailVerified,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+};
+
 const getProfile = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -9,20 +30,24 @@ const getProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found.",
       });
     }
 
+    const userResponse = buildUserResponse(user);
+
     return res.status(200).json({
       success: true,
-      data: user
+      user: userResponse,
+      data: userResponse,
     });
   } catch (error) {
     console.error("Get profile error:", error.message);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to get profile."
+      message: "Failed to get profile.",
+      error: error.message,
     });
   }
 };
@@ -33,49 +58,64 @@ const updateProfile = async (req, res) => {
 
     const {
       fullName,
+      name,
       phone,
+      email,
       dob,
       gender,
       emergencyName,
       emergencyPhone,
-      avatarUrl
+      avatarUrl,
     } = req.body;
+
+    const finalName = fullName || name || "";
+
+    const updateData = {
+      fullName: finalName,
+      name: finalName,
+      phone: phone || "",
+      dob: dob || "",
+      gender: gender || "",
+      emergencyName: emergencyName || "",
+      emergencyPhone: emergencyPhone || "",
+      avatarUrl: avatarUrl || "",
+    };
+
+    if (email) {
+      updateData.email = email.trim().toLowerCase();
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      {
-        fullName,
-        phone,
-        dob,
-        gender,
-        emergencyName,
-        emergencyPhone,
-        avatarUrl
-      },
+      updateData,
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found.",
       });
     }
+
+    const userResponse = buildUserResponse(updatedUser);
 
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully.",
-      data: updatedUser
+      user: userResponse,
+      data: userResponse,
     });
   } catch (error) {
     console.error("Update profile error:", error.message);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to update profile."
+      message: "Failed to update profile.",
+      error: error.message,
     });
   }
 };
@@ -88,7 +128,7 @@ const updateProfileAvatar = async (req, res) => {
     if (!avatarUrl) {
       return res.status(400).json({
         success: false,
-        message: "avatarUrl is required."
+        message: "avatarUrl is required.",
       });
     }
 
@@ -97,28 +137,32 @@ const updateProfileAvatar = async (req, res) => {
       { avatarUrl },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found.",
       });
     }
+
+    const userResponse = buildUserResponse(updatedUser);
 
     return res.status(200).json({
       success: true,
       message: "Avatar updated successfully.",
-      data: updatedUser
+      user: userResponse,
+      data: userResponse,
     });
   } catch (error) {
     console.error("Update avatar error:", error.message);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to update avatar."
+      message: "Failed to update avatar.",
+      error: error.message,
     });
   }
 };
@@ -132,28 +176,32 @@ const deleteProfileAvatar = async (req, res) => {
       { avatarUrl: "" },
       {
         new: true,
-        runValidators: true
+        runValidators: true,
       }
     );
 
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found.",
       });
     }
+
+    const userResponse = buildUserResponse(updatedUser);
 
     return res.status(200).json({
       success: true,
       message: "Avatar deleted successfully.",
-      data: updatedUser
+      user: userResponse,
+      data: userResponse,
     });
   } catch (error) {
     console.error("Delete avatar error:", error.message);
 
     return res.status(500).json({
       success: false,
-      message: "Failed to delete avatar."
+      message: "Failed to delete avatar.",
+      error: error.message,
     });
   }
 };
@@ -162,5 +210,5 @@ module.exports = {
   getProfile,
   updateProfile,
   updateProfileAvatar,
-  deleteProfileAvatar
+  deleteProfileAvatar,
 };

@@ -226,7 +226,15 @@ public class ProfileFragment extends Fragment {
     }
 
     private void fillProfileForm(ApiResponse.UserData user) {
-        edtFullName.setText(user.fullName != null ? user.fullName : "");
+        String displayName = "";
+
+        if (user.fullName != null && !user.fullName.isEmpty()) {
+            displayName = user.fullName;
+        } else if (user.name != null && !user.name.isEmpty()) {
+            displayName = user.name;
+        }
+
+        edtFullName.setText(displayName);
         edtPhoneNumber.setText(user.phone != null ? user.phone : "");
         edtEmail.setText(user.email != null ? user.email : "");
 
