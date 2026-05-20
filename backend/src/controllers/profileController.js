@@ -39,7 +39,6 @@ const getProfile = async (req, res) => {
     return res.status(200).json({
       success: true,
       user: userResponse,
-      data: userResponse,
     });
   } catch (error) {
     console.error("Get profile error:", error.message);
@@ -107,7 +106,6 @@ const updateProfile = async (req, res) => {
       success: true,
       message: "Profile updated successfully.",
       user: userResponse,
-      data: userResponse,
     });
   } catch (error) {
     console.error("Update profile error:", error.message);
@@ -154,7 +152,6 @@ const updateProfileAvatar = async (req, res) => {
       success: true,
       message: "Avatar updated successfully.",
       user: userResponse,
-      data: userResponse,
     });
   } catch (error) {
     console.error("Update avatar error:", error.message);
@@ -193,7 +190,6 @@ const deleteProfileAvatar = async (req, res) => {
       success: true,
       message: "Avatar deleted successfully.",
       user: userResponse,
-      data: userResponse,
     });
   } catch (error) {
     console.error("Delete avatar error:", error.message);
